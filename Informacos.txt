@@ -1,0 +1,31 @@
+
+### pra rodar o servidor 
+
+cd C:\dev\feed-on
+.\.venv\Scripts\Activate.ps1
+python manage.py runserver 127.0.0.1:8000
+
+
+
+Para desenvolvimento local eu deixei no .env:
+
+CELERY_TASK_ALWAYS_EAGER=true
+JIRA_DRY_RUN=true
+
+Assim o upload funciona sem Redis/Celery e sem criar issue real no Jira.
+
+Quando for usar processamento assíncrono real para grandes volumes:
+
+powershell
+# no .env
+CELERY_TASK_ALWAYS_EAGER=false
+
+
+
+
+E rode o worker em outro terminal:
+
+powershell
+cd C:\dev\feed-on
+.\.venv\Scripts\Activate.ps1
+celery -A feed_on worker -l info -P solo

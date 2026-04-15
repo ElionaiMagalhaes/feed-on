@@ -1,0 +1,33 @@
+﻿{% load static %}
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block page_title %}FEED-ON{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{% static 'pipeline/styles.css' %}" rel="stylesheet">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="app-sidebar">
+      <div class="sidebar-brand">
+        <span class="eyebrow">FEED-ON</span>
+        <h1>Painel</h1>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="{% url 'pipeline:index' %}" class="{% if active_nav == 'upload' %}is-active{% endif %}">Upload de Dataset</a>
+        <a href="{% url 'pipeline:dashboard' %}" class="{% if active_nav == 'dashboard' %}is-active{% endif %}">Dashboard</a>
+        <a href="{% url 'pipeline:detailed_results' %}" class="{% if active_nav == 'results' %}is-active{% endif %}">Resultados Detalhados</a>
+      </nav>
+    </aside>
+
+    <main class="app-main">
+      {% block page_content %}{% endblock %}
+    </main>
+  </div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

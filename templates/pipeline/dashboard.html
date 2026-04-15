@@ -1,0 +1,112 @@
+﻿{% extends 'pipeline/base.html' %}
+{% load static %}
+
+{% block page_title %}Dashboard | FEED-ON{% endblock %}
+
+{% block page_content %}
+  <section class="container-fluid px-4 py-4" id="dashboard-root" data-endpoint="{% url 'pipeline:dashboard_data' %}">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <p class="eyebrow mb-1">Dashboard Analitico</p>
+        <h2 class="h3 mb-0">Consolidacao do pipeline FEED-ON</h2>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-success" id="export-csv-btn" href="#">Baixar CSV</a>
+        <a class="btn btn-dark" id="export-docx-btn" href="#">Gerar Relatorio DOCX</a>
+      </div>
+    </div>
+
+    <div class="dashboard-filters mb-4">
+      <label>
+        <span>Job</span>
+        <select id="job-filter" class="form-select">
+          {% if jobs %}
+            {% for job in jobs %}
+              <option value="{{ job.id }}" {% if selected_job and selected_job.id == job.id %}selected{% endif %}>
+                #{{ job.id }} - {{ job.original_filename }} ({{ job.get_status_display }})
+              </option>
+            {% endfor %}
+          {% else %}
+            <option value="">Nenhum job disponivel</option>
+          {% endif %}
+        </select>
+      </label>
+      <label>
+        <span>Sentimento</span>
+        <select id="sentiment-filter" class="form-select">
+          <option value="all" {% if selected_sentiment == 'all' %}selected{% endif %}>Todos</option>
+          <option value="negative" {% if selected_sentiment == 'negative' %}selected{% endif %}>Negativo</option>
+          <option value="neutral" {% if selected_sentiment == 'neutral' %}selected{% endif %}>Neutro</option>
+          <option value="positive" {% if selected_sentiment == 'positive' %}selected{% endif %}>Positivo</option>
+        </select>
+      </label>
+      <label>
+        <span>Consequencia</span>
+        <select id="consequence-filter" class="form-select">
+          <option value="all" {% if selected_consequence == 'all' %}selected{% endif %}>Todas</option>
+          <option value="Correction" {% if selected_consequence == 'Correction' %}selected{% endif %}>Correction</option>
+          <option value="Improvement" {% if selected_consequence == 'Improvement' %}selected{% endif %}>Improvement</option>
+          <option value="Prioritization" {% if selected_consequence == 'Prioritization' %}selected{% endif %}>Prioritization</option>
+        </select>
+      </label>
+      <div class="dashboard-note" id="dashboard-job-meta">Sem dados carregados.</div>
+    </div>
+
+    <div class="metric-grid mb-4">
+      <article class="metric-card">
+        <h3>Total de feedbacks</h3>
+        <p id="card-total">0</p>
+      </article>
+      <article class="metric-card">
+        <h3>% sentimentos negativos</h3>
+        <p id="card-negative">0%</p>
+      </article>
+      <article class="metric-card">
+        <h3>Tickets Jira gerados</h3>
+        <p id="card-jira">0</p>
+      </article>
+    </div>
+
+    <div class="charts-grid mb-4">
+      <article class="chart-card">
+        <h3>Distribuicao de Consequencias (%)</h3>
+        <canvas id="consequence-chart" height="220"></canvas>
+      </article>
+      <article class="chart-card">
+        <h3>Top 5 Features Criticas (Correction)</h3>
+        <canvas id="critical-chart" height="220"></canvas>
+      </article>
+      <article class="chart-card chart-card-wide">
+        <h3>Media de Sentimento por Categoria</h3>
+        <canvas id="sentiment-chart" height="140"></canvas>
+      </article>
+    </div>
+
+    <article class="chart-card">
+      <h3>Top 10 Critical Issues</h3>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Texto</th>
+              <th>Sentimento</th>
+              <th>Alvo Inferido</th>
+              <th>Jira</th>
+            </tr>
+          </thead>
+          <tbody id="critical-issues-body">
+            <tr>
+              <td colspan="5" class="text-muted">Selecione um job para visualizar os dados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="{% static 'pipeline/dashboard.js' %}"></script>
+{% endblock %}

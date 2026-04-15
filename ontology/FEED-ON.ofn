@@ -1,0 +1,278 @@
+Prefix(:=<http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(spo:=<http://dev.nemo.inf.ufes.br/seon/SPO.owl#>)
+Prefix(swo:=<http://dev.nemo.inf.ufes.br/seon/SWO.owl#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(goro:=<http://dev.nemo.inf.ufes.br/seon/GORO.owl#>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+Prefix(rsro:=<http://dev.nemo.inf.ufes.br/seon/RSRO.owl#>)
+
+
+Ontology(<http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#>
+Annotation(rdfs:comment "Operational version of the FEED-ON reference ontology developed using SABiOx."@en)
+Annotation(rdfs:label "FEED-ON: Feedback Ontology"@en)
+Annotation(owl:versionInfo "0.1")
+
+Declaration(Class(:Agent))
+Declaration(Class(:Client))
+Declaration(Class(:ConsequenceExpected))
+Declaration(Class(:Context))
+Declaration(Class(:Correction))
+Declaration(Class(:DataItem))
+Declaration(Class(:Developer))
+Declaration(Class(:ElicitationMode))
+Declaration(Class(:EndUser))
+Declaration(Class(:ExternalAgent))
+Declaration(Class(:Feature))
+Declaration(Class(:Feedback))
+Declaration(Class(:FeedbackAttribute))
+Declaration(Class(:Improvement))
+Declaration(Class(:Intention))
+Declaration(Class(:InternalAgent))
+Declaration(Class(:Prioritization))
+Declaration(Class(:Process))
+Declaration(Class(:ProductOwner))
+Declaration(Class(:QualityAttribute))
+Declaration(Class(:Requirement))
+Declaration(Class(:Sentiment))
+Declaration(Class(:Target))
+Declaration(Class(:TechnicalSupportAgent))
+Declaration(Class(:Tester))
+Declaration(Class(:UIElement))
+Declaration(ObjectProperty(:aimsToEvolve))
+Declaration(ObjectProperty(:derivedFrom))
+Declaration(ObjectProperty(:hasElicitationMode))
+Declaration(ObjectProperty(:hasIntention))
+Declaration(ObjectProperty(:indicates))
+Declaration(ObjectProperty(:isProvidedBy))
+Declaration(ObjectProperty(:partOf))
+Declaration(ObjectProperty(:refersTo))
+Declaration(DataProperty(:commentText))
+Declaration(DataProperty(:deviceInfo))
+Declaration(DataProperty(:isProcessed))
+Declaration(DataProperty(:jiraKey))
+Declaration(DataProperty(:location))
+Declaration(DataProperty(:sentimentScore))
+Declaration(DataProperty(:timestamp))
+Declaration(NamedIndividual(:Button_Play_TV))
+Declaration(NamedIndividual(:Feature_VideoPlayer))
+Declaration(NamedIndividual(:Feedback_001))
+Declaration(NamedIndividual(:Intention_BugReport))
+Declaration(NamedIndividual(:vvv))
+
+############################
+#   Object Properties
+############################
+
+# Object Property: :aimsToEvolve (:aimsToEvolve)
+
+AnnotationAssertion(rdfs:comment :aimsToEvolve "It defines which software component the developer should open to perform the correction or improvement.")
+ObjectPropertyDomain(:aimsToEvolve :ConsequenceExpected)
+ObjectPropertyRange(:aimsToEvolve :Target)
+
+# Object Property: :derivedFrom (:derivedFrom)
+
+AnnotationAssertion(rdfs:comment :derivedFrom "Configurar propriedades inversas ajuda o pipeline a rastrear o caminho de volta (do ticket no Jira até o feedback original).")
+InverseObjectProperties(:derivedFrom :indicates)
+ObjectPropertyDomain(:derivedFrom :ConsequenceExpected)
+ObjectPropertyRange(:derivedFrom :Feedback)
+
+# Object Property: :hasElicitationMode (:hasElicitationMode)
+
+ObjectPropertyDomain(:hasElicitationMode :Feedback)
+
+# Object Property: :hasIntention (:hasIntention)
+
+FunctionalObjectProperty(:hasIntention)
+ObjectPropertyDomain(:hasIntention :Feedback)
+ObjectPropertyRange(:hasIntention :Intention)
+
+# Object Property: :indicates (:indicates)
+
+ObjectPropertyDomain(:indicates :Feedback)
+ObjectPropertyRange(:indicates :ConsequenceExpected)
+
+# Object Property: :isProvidedBy (:isProvidedBy)
+
+AnnotationAssertion(rdfs:comment :isProvidedBy "It identifies whether the feedback came from an EndUser or an InternalAgent to filter relevance.")
+ObjectPropertyDomain(:isProvidedBy :Feedback)
+ObjectPropertyRange(:isProvidedBy :Agent)
+
+# Object Property: :partOf (:partOf)
+
+SubObjectPropertyOf(:partOf owl:topObjectProperty)
+TransitiveObjectProperty(:partOf)
+ObjectPropertyDomain(:partOf :Target)
+ObjectPropertyRange(:partOf :Target)
+
+# Object Property: :refersTo (:refersTo)
+
+ObjectPropertyDomain(:refersTo :Feedback)
+ObjectPropertyRange(:refersTo :Target)
+
+
+############################
+#   Data Properties
+############################
+
+# Data Property: :commentText (:commentText)
+
+FunctionalDataProperty(:commentText)
+DataPropertyDomain(:commentText :Feedback)
+DataPropertyRange(:commentText xsd:string)
+
+# Data Property: :deviceInfo (:deviceInfo)
+
+FunctionalDataProperty(:deviceInfo)
+DataPropertyDomain(:deviceInfo :Context)
+DataPropertyRange(:deviceInfo xsd:string)
+
+# Data Property: :isProcessed (:isProcessed)
+
+FunctionalDataProperty(:isProcessed)
+DataPropertyDomain(:isProcessed :Feedback)
+DataPropertyRange(:isProcessed xsd:boolean)
+
+# Data Property: :jiraKey (:jiraKey)
+
+FunctionalDataProperty(:jiraKey)
+DataPropertyDomain(:jiraKey :ConsequenceExpected)
+DataPropertyRange(:jiraKey xsd:string)
+
+# Data Property: :location (:location)
+
+FunctionalDataProperty(:location)
+DataPropertyDomain(:location :Context)
+DataPropertyRange(:location xsd:string)
+
+# Data Property: :sentimentScore (:sentimentScore)
+
+FunctionalDataProperty(:sentimentScore)
+DataPropertyDomain(:sentimentScore :Sentiment)
+DataPropertyRange(:sentimentScore xsd:float)
+
+# Data Property: :timestamp (:timestamp)
+
+FunctionalDataProperty(:timestamp)
+DataPropertyDomain(:timestamp :Context)
+DataPropertyRange(:timestamp xsd:dateTime)
+
+
+
+############################
+#   Classes
+############################
+
+# Class: :Client (:Client)
+
+SubClassOf(:Client :ExternalAgent)
+
+# Class: :Context (:Context)
+
+SubClassOf(:Context :FeedbackAttribute)
+
+# Class: :Correction (:Correction)
+
+SubClassOf(:Correction :ConsequenceExpected)
+
+# Class: :DataItem (:DataItem)
+
+SubClassOf(:DataItem :Target)
+
+# Class: :Developer (:Developer)
+
+SubClassOf(:Developer :InternalAgent)
+
+# Class: :ElicitationMode (:ElicitationMode)
+
+SubClassOf(:ElicitationMode :FeedbackAttribute)
+
+# Class: :EndUser (:EndUser)
+
+SubClassOf(:EndUser :ExternalAgent)
+
+# Class: :ExternalAgent (:ExternalAgent)
+
+SubClassOf(:ExternalAgent :Agent)
+
+# Class: :Feature (:Feature)
+
+SubClassOf(:Feature :Target)
+
+# Class: :Improvement (:Improvement)
+
+SubClassOf(:Improvement :ConsequenceExpected)
+
+# Class: :Intention (:Intention)
+
+SubClassOf(:Intention :FeedbackAttribute)
+
+# Class: :InternalAgent (:InternalAgent)
+
+SubClassOf(:InternalAgent :Agent)
+
+# Class: :Prioritization (:Prioritization)
+
+SubClassOf(:Prioritization :ConsequenceExpected)
+
+# Class: :Process (:Process)
+
+SubClassOf(:Process :Target)
+
+# Class: :ProductOwner (:ProductOwner)
+
+SubClassOf(:ProductOwner :InternalAgent)
+
+# Class: :QualityAttribute (:QualityAttribute)
+
+SubClassOf(:QualityAttribute :Target)
+
+# Class: :Requirement (:Requirement)
+
+SubClassOf(:Requirement :Target)
+
+# Class: :Sentiment (:Sentiment)
+
+SubClassOf(:Sentiment :FeedbackAttribute)
+
+# Class: :TechnicalSupportAgent (:TechnicalSupportAgent)
+
+SubClassOf(:TechnicalSupportAgent :InternalAgent)
+
+# Class: :Tester (:Tester)
+
+SubClassOf(:Tester :InternalAgent)
+
+# Class: :UIElement (:UIElement)
+
+SubClassOf(:UIElement :Target)
+
+
+############################
+#   Named Individuals
+############################
+
+# Individual: :Button_Play_TV (:Button_Play_TV)
+
+ClassAssertion(:UIElement :Button_Play_TV)
+ObjectPropertyAssertion(:partOf :Button_Play_TV :Feature_VideoPlayer)
+
+# Individual: :Feature_VideoPlayer (:Feature_VideoPlayer)
+
+ClassAssertion(:Feature :Feature_VideoPlayer)
+
+# Individual: :Feedback_001 (:Feedback_001)
+
+ClassAssertion(:Feedback :Feedback_001)
+ObjectPropertyAssertion(:hasIntention :Feedback_001 :Intention_BugReport)
+ObjectPropertyAssertion(:refersTo :Feedback_001 :Button_Play_TV)
+
+# Individual: :Intention_BugReport (:Intention_BugReport)
+
+ClassAssertion(:Intention :Intention_BugReport)
+
+
+SubObjectPropertyOf(ObjectPropertyChain(:refersTo :partOf) :refersTo)
+)

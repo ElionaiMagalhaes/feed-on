@@ -1,0 +1,12 @@
+﻿Django>=5.0,<5.1
+python-dotenv>=1.0,<2.0
+pymysql>=1.1,<2.0
+celery>=5.3,<6.0
+redis>=5.0,<6.0
+owlready2>=0.47
+atlassian-python-api>=3.41,<4.0
+gunicorn>=21.2,<23.0
+requests>=2.31,<3.0
+openai>=1.59,<3.0
+python-docx>=1.1,<2.0
+

@@ -1,0 +1,119 @@
+﻿{% extends 'pipeline/base.html' %}
+{% load static %}
+
+{% block page_title %}Upload de Dataset | FEED-ON{% endblock %}
+
+{% block page_content %}
+  <section class="top-band">
+    <div class="container py-5">
+      <p class="eyebrow">FEED-ON</p>
+      <h2 class="display-6 fw-semibold">Feedbacks de usuarios em tarefas rastreaveis no Jira</h2>
+      <p class="lead mb-0">Envie um CSV, acompanhe o pipeline sem bloquear a tela e revise alvo inferido, consequencia e chave Jira.</p>
+    </div>
+  </section>
+
+  <section class="container py-4">
+    <div class="upload-surface" id="dropzone">
+      <form id="upload-form" action="{% url 'pipeline:create_job' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input class="visually-hidden" id="dataset" name="dataset" type="file" accept=".csv">
+        <label for="dataset" class="upload-label">
+          <span class="upload-title">Solte o CSV aqui ou clique para selecionar</span>
+          <span class="upload-subtitle" id="selected-file">Limite atual: {{ max_upload_size_mb }} MB</span>
+        </label>
+        <div class="file-feedback" id="file-feedback" aria-live="polite" hidden>
+          <strong id="file-feedback-name">Arquivo selecionado</strong>
+          <span id="file-feedback-meta">Pronto para iniciar.</span>
+        </div>
+        <div class="upload-actions mt-3">
+          <label class="limit-field" for="row-limit">
+            <span>Quantidade para processar</span>
+            <input class="form-control" id="row-limit" name="row_limit" type="number" min="1" step="1" value="1000" placeholder="Todos">
+          </label>
+          <button class="btn btn-dark" type="submit">Iniciar pipeline</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="container pb-4">
+    <div class="status-layout">
+      <div class="status-panel">
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+          <div>
+            <p class="eyebrow mb-1">Status</p>
+            <h2 class="h4 mb-0" id="current-phase">Aguardando upload</h2>
+          </div>
+          <span class="badge text-bg-secondary" id="job-status">idle</span>
+        </div>
+        <div class="progress" role="progressbar" aria-label="Progresso do pipeline">
+          <div class="progress-bar" id="progress-bar" style="width: 0%">0%</div>
+        </div>
+        <div class="status-actions mt-3">
+          <button class="btn btn-outline-danger btn-sm" id="cancel-job" type="button" disabled>Cancelar processamento</button>
+          <span class="text-muted" id="job-detail">Nenhum job ativo.</span>
+        </div>
+        <ol class="event-list mt-4" id="event-list"></ol>
+      </div>
+
+      <aside class="recent-panel">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <p class="eyebrow mb-0">Jobs recentes</p>
+          <a class="btn btn-sm btn-outline-secondary" href="{% url 'pipeline:dashboard' %}">Abrir dashboard</a>
+        </div>
+        {% if jobs %}
+          <ul class="recent-list">
+            {% for job in jobs %}
+              <li>
+                <button class="recent-job" data-status-url="{% url 'pipeline:job_status' job.id %}">
+                  <span>{{ job.original_filename }}</span>
+                  <strong>{{ job.get_status_display }}</strong>
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted mb-0">Nenhum processamento ainda.</p>
+        {% endif %}
+      </aside>
+    </div>
+  </section>
+
+  <section class="results-band py-5">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+        <div>
+          <p class="eyebrow mb-1">Resultado</p>
+          <h2 class="h4 mb-0">Resumo dos feedbacks</h2>
+        </div>
+        <span class="text-muted" id="row-count">0 feedbacks</span>
+      </div>
+      <div class="table-responsive result-table">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>ID Feedback</th>
+              <th>Texto</th>
+              <th>Intencao FEED-ON</th>
+              <th>Sentimento</th>
+              <th>Alvo IA</th>
+              <th>Alvo Inferido</th>
+              <th>Consequencia</th>
+              <th>Status Jira</th>
+            </tr>
+          </thead>
+          <tbody id="result-body">
+            <tr>
+              <td colspan="8" class="text-muted">Os resultados aparecem aqui quando o processamento iniciar.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'pipeline/app.js' %}"></script>
+{% endblock %}
+

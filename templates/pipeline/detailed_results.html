@@ -1,0 +1,121 @@
+﻿{% extends 'pipeline/base.html' %}
+
+{% block page_title %}Resultados Detalhados | FEED-ON{% endblock %}
+
+{% block page_content %}
+  <section class="container-fluid px-4 py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <p class="eyebrow mb-1">Resultados Detalhados</p>
+        <h2 class="h3 mb-0">Tabela completa de feedbacks processados</h2>
+      </div>
+    </div>
+
+    <form class="dashboard-filters mb-4" method="get">
+      <label>
+        <span>Job</span>
+        <select id="job-filter" class="form-select" name="job" onchange="this.form.submit()">
+          {% if jobs %}
+            {% for job in jobs %}
+              <option value="{{ job.id }}" {% if selected_job and selected_job.id == job.id %}selected{% endif %}>
+                #{{ job.id }} - {{ job.original_filename }} ({{ job.get_status_display }})
+              </option>
+            {% endfor %}
+          {% else %}
+            <option value="">Nenhum job disponivel</option>
+          {% endif %}
+        </select>
+      </label>
+      <label>
+        <span>Sentimento</span>
+        <select class="form-select" name="sentiment" onchange="this.form.submit()">
+          <option value="all" {% if selected_sentiment == 'all' %}selected{% endif %}>Todos</option>
+          <option value="negative" {% if selected_sentiment == 'negative' %}selected{% endif %}>Negativo</option>
+          <option value="neutral" {% if selected_sentiment == 'neutral' %}selected{% endif %}>Neutro</option>
+          <option value="positive" {% if selected_sentiment == 'positive' %}selected{% endif %}>Positivo</option>
+        </select>
+      </label>
+      <label>
+        <span>Consequencia</span>
+        <select class="form-select" name="consequence" onchange="this.form.submit()">
+          <option value="all" {% if selected_consequence == 'all' %}selected{% endif %}>Todas</option>
+          <option value="Correction" {% if selected_consequence == 'Correction' %}selected{% endif %}>Correction</option>
+          <option value="Improvement" {% if selected_consequence == 'Improvement' %}selected{% endif %}>Improvement</option>
+          <option value="Prioritization" {% if selected_consequence == 'Prioritization' %}selected{% endif %}>Prioritization</option>
+        </select>
+      </label>
+    </form>
+
+    <div class="table-responsive result-table">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Texto Original</th>
+            <th>Sentimento</th>
+            <th>Alvo IA</th>
+            <th>Alvo Inferido</th>
+            <th>Consequencia</th>
+            <th>Link Jira</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if rows %}
+            {% for row in rows %}
+              <tr>
+                <td>{{ row.source_id }}</td>
+                <td>{{ row.text }}</td>
+                <td>{% if row.sentiment_score == None %}-{% else %}{{ row.sentiment_score|floatformat:2 }}{% endif %}</td>
+                <td>{{ row.target_candidate|default:'-' }}</td>
+                <td>{{ row.inferred_target|default:row.technical_target|default:'-' }}</td>
+                <td>{{ row.consequence|default:'-' }}</td>
+                <td>
+                  {% if row.jira_key %}
+                    {% if row.jira_key|slice:':4' == 'http' %}
+                      <a href="{{ row.jira_key }}" target="_blank" rel="noopener noreferrer">{{ row.jira_key }}</a>
+                    {% else %}
+                      {{ row.jira_key }}
+                    {% endif %}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="7" class="text-muted">Nenhum registro encontrado para os filtros selecionados.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj %}
+      <nav class="mt-3" aria-label="Paginacao de resultados">
+        <ul class="pagination mb-0">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+          {% endif %}
+
+          <li class="page-item disabled">
+            <span class="page-link">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+          </li>
+
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?{% if base_query %}{{ base_query }}&{% endif %}page={{ page_obj.next_page_number }}">Proxima</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Proxima</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  </section>
+{% endblock %}
+
