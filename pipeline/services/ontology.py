@@ -17,6 +17,19 @@ TARGET_PARENT_RULES = {
 
 INTENTION_CLASS_MARKERS = {"Intention_BugReport", "Intention_Suggestion", "BugReport", "Suggestion"}
 FUNCTIONAL_DEBUG_PROPERTIES = {"hasIntention", "commentText", "sentimentScore", "jiraKey"}
+FEED_ON_CLASS_IRIS = {
+    "Agent": "FEED-ON::Agent",
+    "Client": "FEED-ON::Client",
+    "ConsequenceExpected": "FEED-ON::ConsequenceExpected",
+    "EndUser": "FEED-ON::EndUser",
+    "ExternalAgent": "FEED-ON::ExternalAgent",
+    "Feedback": "FEED-ON::Feedback",
+    "FeedbackAttribute": "FEED-ON::FeedbackAttribute",
+    "InternalAgent": "FEED-ON::InternalAgent",
+    "Target": "FEED-ON::Target",
+}
+CONSEQUENCE_CLASSES = {"Correction", "Improvement", "Prioritization"}
+TARGET_ROOT_CLASSES = {"DataItem", "Feature", "Process", "QualityAttribute", "Requirement", "UIElement"}
 
 
 @dataclass(frozen=True)
@@ -359,19 +372,22 @@ class FeedOnOntologyService:
             _destroy_ontology_entity(existing_feedback)
 
         with onto:
-            feedback_cls = _class_or_create(onto, "Feedback", Thing)
-            target_cls = _class_or_create(onto, _simple_name(technical_target), Thing)
-            inferred_cls = _class_or_create(onto, _simple_name(inferred_target), Thing)
+            feedback_cls = _class_or_create(onto, "Feedback", Thing, iri_suffix=FEED_ON_CLASS_IRIS["Feedback"])
+            target_cls = _target_class_for(onto, technical_target, Thing)
+            inferred_cls = _target_class_for(onto, inferred_target, Thing)
+            consequence_cls = _class_or_create(onto, _valid_consequence(consequence), Thing)
             intention_cls = _class_or_create(onto, "Intention", Thing)
             refers_to = _object_property_or_create(onto, "refersTo", ObjectProperty)
             part_of = _object_property_or_create(onto, "partOf", ObjectProperty)
             has_intention = _object_property_or_create(onto, "hasIntention", ObjectProperty)
+            indicates = _object_property_or_create(onto, "indicates", ObjectProperty)
             comment_text = _data_property_or_create(onto, "commentText", DataProperty)
 
         feedback = feedback_cls(feedback_name)
         target = _individual_or_create(onto, _safe_name(technical_target), target_cls)
         inferred = _individual_or_create(onto, _safe_name(inferred_target), inferred_cls)
         intention = _individual_or_create(onto, _intention_individual_name(intent), intention_cls)
+        consequence_individual = _replace_consequence_individual(onto, f"Consequence_{safe_id}", consequence_cls)
 
         self._clear_previous_intention_classifications(feedback)
 
@@ -379,6 +395,7 @@ class FeedOnOntologyService:
         _set_data_property(feedback, comment_text, text, replace=True)
         _set_object_property(feedback, has_intention, intention, replace=True)
         _set_object_property(feedback, refers_to, target, replace=True)
+        _set_object_property(feedback, indicates, consequence_individual, replace=True)
 
         if target is not inferred:
             _set_object_property(target, part_of, inferred, replace=False)
@@ -432,7 +449,16 @@ class FeedOnOntologyService:
 def _individual_or_create(onto, name: str, cls):
     found = onto.search_one(iri=f"*{name}")
     if found is not None:
+        if cls not in getattr(found, "is_a", []):
+            found.is_a.append(cls)
         return found
+    return cls(name)
+
+
+def _replace_consequence_individual(onto, name: str, cls):
+    found = onto.search_one(iri=f"*{name}")
+    if found is not None:
+        _destroy_ontology_entity(found)
     return cls(name)
 
 
@@ -468,15 +494,42 @@ def _set_data_property(individual, prop, value: str, *, replace: bool = False) -
     setattr(individual, prop.python_name, value)
 
 
-def _class_or_create(onto, name: str, base):
+def _class_or_create(onto, name: str, base, *, iri_suffix: str | None = None):
     safe = _safe_class_name(name)
+    if iri_suffix:
+        found = _find_entity_by_iri_suffix(onto.classes(), iri_suffix)
+        if found is not None:
+            return found
     found = getattr(onto, safe, None)
     if found is not None and isinstance(found, type):
         return found
     for cls in onto.classes():
-        if cls.name == safe:
+        if cls.name == safe or cls.name.lstrip(":") == safe:
             return cls
     return type(safe, (base,), {"namespace": onto})
+
+
+def _target_class_for(onto, value: str, base):
+    root = _target_root_name(value)
+    if root in TARGET_ROOT_CLASSES:
+        return _class_or_create(onto, root, base)
+    return _class_or_create(onto, "Target", base, iri_suffix=FEED_ON_CLASS_IRIS["Target"])
+
+
+def _target_root_name(value: str) -> str:
+    root = (value or "").split(".", 1)[0]
+    return root if root in TARGET_ROOT_CLASSES else ""
+
+
+def _valid_consequence(value: str) -> str:
+    return value if value in CONSEQUENCE_CLASSES else "Improvement"
+
+
+def _find_entity_by_iri_suffix(entities, iri_suffix: str):
+    for entity in entities:
+        if getattr(entity, "iri", "").endswith(iri_suffix):
+            return entity
+    return None
 
 
 def _object_property_or_create(onto, name: str, base):

@@ -1,456 +1,553 @@
 <?xml version="1.0"?>
-<rdf:RDF xmlns="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#"
-     xml:base="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:spo="http://dev.nemo.inf.ufes.br/seon/SPO.owl#"
-     xmlns:swo="http://dev.nemo.inf.ufes.br/seon/SWO.owl#"
      xmlns:xml="http://www.w3.org/XML/1998/namespace"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:goro="http://dev.nemo.inf.ufes.br/seon/GORO.owl#"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:rsro="http://dev.nemo.inf.ufes.br/seon/RSRO.owl#">
-    <owl:Ontology rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#">
-        <rdfs:comment xml:lang="en">Operational version of the FEED-ON reference ontology developed using SABiOx.</rdfs:comment>
-        <rdfs:label xml:lang="en">FEED-ON: Feedback Ontology</rdfs:label>
-        <owl:versionInfo>0.1</owl:versionInfo>
-    </owl:Ontology>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Object Properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#aimsToEvolve -->
-
-    <owl:ObjectProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#aimsToEvolve">
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected"/>
-        <rdfs:range rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-        <rdfs:comment>It defines which software component the developer should open to perform the correction or improvement.</rdfs:comment>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#derivedFrom -->
-
-    <owl:ObjectProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#derivedFrom">
-        <owl:inverseOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#indicates"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected"/>
-        <rdfs:range rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-        <rdfs:comment>Configurar propriedades inversas ajuda o pipeline a rastrear o caminho de volta (do ticket no Jira até o feedback original).</rdfs:comment>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#hasElicitationMode -->
-
-    <owl:ObjectProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#hasElicitationMode">
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#hasIntention -->
-
-    <owl:ObjectProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#hasIntention">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-        <rdfs:range rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Intention"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#indicates -->
-
-    <owl:ObjectProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#indicates">
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-        <rdfs:range rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#isProvidedBy -->
-
-    <owl:ObjectProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#isProvidedBy">
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-        <rdfs:range rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Agent"/>
-        <rdfs:comment>It identifies whether the feedback came from an EndUser or an InternalAgent to filter relevance.</rdfs:comment>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#partOf -->
-
-    <owl:ObjectProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#partOf">
-        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-        <rdfs:range rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#refersTo -->
-
-    <owl:ObjectProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#refersTo">
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-        <rdfs:range rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-        <owl:propertyChainAxiom rdf:parseType="Collection">
-            <rdf:Description rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#refersTo"/>
-            <rdf:Description rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#partOf"/>
-        </owl:propertyChainAxiom>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Data properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#commentText -->
-
-    <owl:DatatypeProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#commentText">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#deviceInfo -->
-
-    <owl:DatatypeProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#deviceInfo">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Context"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#isProcessed -->
-
-    <owl:DatatypeProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#isProcessed">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#boolean"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#jiraKey -->
-
-    <owl:DatatypeProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#jiraKey">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#location -->
-
-    <owl:DatatypeProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#location">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Context"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#sentimentScore -->
-
-    <owl:DatatypeProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#sentimentScore">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Sentiment"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#timestamp -->
-
-    <owl:DatatypeProperty rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#timestamp">
-        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#FunctionalProperty"/>
-        <rdfs:domain rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Context"/>
-        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#dateTime"/>
-    </owl:DatatypeProperty>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Classes
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Agent -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Agent"/>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Client -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Client">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ExternalAgent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected"/>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Context -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Context">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#FeedbackAttribute"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Correction -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Correction">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#DataItem -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#DataItem">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Developer -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Developer">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#InternalAgent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ElicitationMode -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ElicitationMode">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#FeedbackAttribute"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#EndUser -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#EndUser">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ExternalAgent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ExternalAgent -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ExternalAgent">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Agent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feature -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feature">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#FeedbackAttribute -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#FeedbackAttribute"/>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Improvement -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Improvement">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Intention -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Intention">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#FeedbackAttribute"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#InternalAgent -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#InternalAgent">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Agent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Prioritization -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Prioritization">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ConsequenceExpected"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Process -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Process">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ProductOwner -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#ProductOwner">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#InternalAgent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#QualityAttribute -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#QualityAttribute">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Requirement -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Requirement">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Sentiment -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Sentiment">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#FeedbackAttribute"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#TechnicalSupportAgent -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#TechnicalSupportAgent">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#InternalAgent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Tester -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Tester">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#InternalAgent"/>
-    </owl:Class>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#UIElement -->
-
-    <owl:Class rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#UIElement">
-        <rdfs:subClassOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Target"/>
-    </owl:Class>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Individuals
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Button_Play_TV -->
-
-    <owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Button_Play_TV">
-        <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#UIElement"/>
-        <partOf rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feature_VideoPlayer"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feature_VideoPlayer -->
-
-    <owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feature_VideoPlayer">
-        <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feature"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback_001 -->
-
-    <owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback_001">
-        <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Feedback"/>
-        <hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Intention_BugReport"/>
-        <refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Button_Play_TV"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Intention_BugReport -->
-
-    <owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Intention_BugReport">
-        <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#Intention"/>
-    </owl:NamedIndividual>
-    
-
-
-    <!-- http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#vvv -->
-
-    <owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#vvv"/>
-</rdf:RDF>
+     ontologyIRI="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#">
+    <Prefix name="" IRI="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="spo" IRI="http://dev.nemo.inf.ufes.br/seon/SPO.owl#"/>
+    <Prefix name="swo" IRI="http://dev.nemo.inf.ufes.br/seon/SWO.owl#"/>
+    <Prefix name="ufo" IRI="http://purl.org/nemo/ufo#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="SEON" IRI="dev.nemo.inf.ufes.br/seon/SEON.owl#"/>
+    <Prefix name="goro" IRI="http://dev.nemo.inf.ufes.br/seon/GORO.owl#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Prefix name="rsro" IRI="http://dev.nemo.inf.ufes.br/seon/RSRO.owl#"/>
+    <Prefix name="SEON1" IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#"/>
+    <Import>file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#</Import>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <Literal xml:lang="en">Operational version of the FEED-ON reference ontology developed using SABiOx.</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <Literal xml:lang="en">FEED-ON: Feedback Ontology</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="owl:versionInfo"/>
+        <Literal>0.1</Literal>
+    </Annotation>
+    <Declaration>
+        <Class IRI="Improvement"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::Agent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::ExternalAgent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::Feedback"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::FeedbackAttribute"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::InternalAgent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::Target"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Context"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Correction"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="DataItem"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Developer"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Explicit"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Feature"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FeedbackElicitationTechnique"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Implicit"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Intention"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Prioritization"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Process"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="ProductOwner"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="QualityAttribute"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Requirement"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Sentiment"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="TechnicalSupportAgent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Tester"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="UIElement"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::Client"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FEED-ON::EndUser"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="aimsToEvolve"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="derivedFrom"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="hasIntention"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="indicates"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="isElicitedThrough"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="isProvidedBy"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="memberOf"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="partOf"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="refersTo"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="commentText"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="deviceInfo"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="isProcessed"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="jiraKey"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="location"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="sentimentScore"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="timestamp"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="Button_Play_TV"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="Feature_VideoPlayer"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="Feedback_001"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="Intention_BugReport"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="vvv"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="Improvement"/>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Performed_Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FEED-ON::ExternalAgent"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Stakeholder"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FEED-ON::Feedback"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Simple_Artifact"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FEED-ON::InternalAgent"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Person_Stakeholder"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Context"/>
+        <Class IRI="FEED-ON::FeedbackAttribute"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Correction"/>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Correction"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#CMPO::Change_Implementation"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="DataItem"/>
+        <Class IRI="FEED-ON::Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="DataItem"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Simple_Artifact"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Developer"/>
+        <Class IRI="FEED-ON::InternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Explicit"/>
+        <Class IRI="FeedbackElicitationTechnique"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Feature"/>
+        <Class IRI="FEED-ON::Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Feature"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#RRO::Software_Function"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FeedbackElicitationTechnique"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Technique"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Implicit"/>
+        <Class IRI="FeedbackElicitationTechnique"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Intention"/>
+        <Class IRI="FEED-ON::FeedbackAttribute"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Prioritization"/>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Prioritization"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#RDPO::Requirements_Negotiation_and_Prioritization"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Process"/>
+        <Class IRI="FEED-ON::Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="ProductOwner"/>
+        <Class IRI="FEED-ON::InternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="QualityAttribute"/>
+        <Class IRI="FEED-ON::Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="QualityAttribute"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#RSRO::Quality_Characteristic"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Requirement"/>
+        <Class IRI="FEED-ON::Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Requirement"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#RSRO::Requirement"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Sentiment"/>
+        <Class IRI="FEED-ON::FeedbackAttribute"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="TechnicalSupportAgent"/>
+        <Class IRI="FEED-ON::InternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Tester"/>
+        <Class IRI="FEED-ON::InternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="UIElement"/>
+        <Class IRI="FEED-ON::Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="UIElement"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SwO::Source_Code"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FEED-ON::Client"/>
+        <Class IRI="FEED-ON::ExternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FEED-ON::Client"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Organization_Stakeholder"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FEED-ON::EndUser"/>
+        <Class IRI="FEED-ON::ExternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FEED-ON::EndUser"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Person_Stakeholder"/>
+    </SubClassOf>
+    <DisjointClasses>
+        <Class IRI="Improvement"/>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+        <Class IRI="Correction"/>
+        <Class IRI="Prioritization"/>
+    </DisjointClasses>
+    <DisjointClasses>
+        <Class IRI="Explicit"/>
+        <Class IRI="Implicit"/>
+    </DisjointClasses>
+    <ClassAssertion>
+        <Class IRI="UIElement"/>
+        <NamedIndividual IRI="Button_Play_TV"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="Feature"/>
+        <NamedIndividual IRI="Feature_VideoPlayer"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="FEED-ON::Feedback"/>
+        <NamedIndividual IRI="Feedback_001"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="Intention"/>
+        <NamedIndividual IRI="Intention_BugReport"/>
+    </ClassAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="partOf"/>
+        <NamedIndividual IRI="Button_Play_TV"/>
+        <NamedIndividual IRI="Feature_VideoPlayer"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="hasIntention"/>
+        <NamedIndividual IRI="Feedback_001"/>
+        <NamedIndividual IRI="Intention_BugReport"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="refersTo"/>
+        <NamedIndividual IRI="Feedback_001"/>
+        <NamedIndividual IRI="Button_Play_TV"/>
+    </ObjectPropertyAssertion>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="partOf"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="derivedFrom"/>
+        <ObjectProperty IRI="indicates"/>
+    </InverseObjectProperties>
+    <FunctionalObjectProperty>
+        <ObjectProperty IRI="hasIntention"/>
+    </FunctionalObjectProperty>
+    <FunctionalObjectProperty>
+        <ObjectProperty IRI="memberOf"/>
+    </FunctionalObjectProperty>
+    <TransitiveObjectProperty>
+        <ObjectProperty IRI="partOf"/>
+    </TransitiveObjectProperty>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="aimsToEvolve"/>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="derivedFrom"/>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="hasIntention"/>
+        <Class IRI="FEED-ON::Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="indicates"/>
+        <Class IRI="FEED-ON::Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="isElicitedThrough"/>
+        <Class IRI="FEED-ON::Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="isProvidedBy"/>
+        <Class IRI="FEED-ON::Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="memberOf"/>
+        <Class IRI="FEED-ON::InternalAgent"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="partOf"/>
+        <Class IRI="FEED-ON::Target"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="refersTo"/>
+        <Class IRI="FEED-ON::Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="aimsToEvolve"/>
+        <Class IRI="FEED-ON::Target"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="derivedFrom"/>
+        <Class IRI="FEED-ON::Feedback"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="hasIntention"/>
+        <Class IRI="Intention"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="indicates"/>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="isElicitedThrough"/>
+        <Class IRI="FeedbackElicitationTechnique"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="isProvidedBy"/>
+        <Class IRI="FEED-ON::Agent"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="memberOf"/>
+        <Class IRI="file:/G:/Meu%20Drive/1%20-%20UFES/3%20Ontologia/Ontologia%20-%20material%20de%20apoio/dev.nemo.inf.ufes.br/seon/dev.nemo.inf.ufes.br/seon/SEON.owl#EO::Organization"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="partOf"/>
+        <Class IRI="FEED-ON::Target"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="refersTo"/>
+        <Class IRI="FEED-ON::Target"/>
+    </ObjectPropertyRange>
+    <SubObjectPropertyOf>
+        <ObjectPropertyChain>
+            <ObjectProperty IRI="refersTo"/>
+            <ObjectProperty IRI="partOf"/>
+        </ObjectPropertyChain>
+        <ObjectProperty IRI="refersTo"/>
+    </SubObjectPropertyOf>
+    <FunctionalDataProperty>
+        <DataProperty IRI="commentText"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="deviceInfo"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="isProcessed"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="jiraKey"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="location"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="sentimentScore"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="timestamp"/>
+    </FunctionalDataProperty>
+    <DataPropertyDomain>
+        <DataProperty IRI="commentText"/>
+        <Class IRI="FEED-ON::Feedback"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="deviceInfo"/>
+        <Class IRI="Context"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="isProcessed"/>
+        <Class IRI="FEED-ON::Feedback"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="jiraKey"/>
+        <Class IRI="FEED-ON::ConsequenceExpected"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="location"/>
+        <Class IRI="Context"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="sentimentScore"/>
+        <Class IRI="Sentiment"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="timestamp"/>
+        <Class IRI="Context"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="commentText"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="deviceInfo"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="isProcessed"/>
+        <Datatype abbreviatedIRI="xsd:boolean"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="jiraKey"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="location"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="sentimentScore"/>
+        <Datatype abbreviatedIRI="xsd:float"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="timestamp"/>
+        <Datatype abbreviatedIRI="xsd:dateTime"/>
+    </DataPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>aimsToEvolve</IRI>
+        <Literal>It defines which software component the developer should open to perform the correction or improvement.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>derivedFrom</IRI>
+        <Literal>Configurar propriedades inversas ajuda o pipeline a rastrear o caminho de volta (do ticket no Jira até o feedback original).</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>isProvidedBy</IRI>
+        <Literal>It identifies whether the feedback came from an EndUser or an InternalAgent to filter relevance.</Literal>
+    </AnnotationAssertion>
+</Ontology>
 
 
 
