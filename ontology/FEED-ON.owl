@@ -29347,7 +29347,7 @@
 <owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_c8371db2_2484_4bcc_8d87_09dbf5d98041__job15__row9">
   <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
   <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Botao"/>
-  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FEED-11</seon:jiraKey>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_c8371db2_2484_4bcc_8d87_09dbf5d98041__job15__row9">
@@ -29683,7 +29683,7 @@
 <owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job15__row21">
   <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
   <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Crash"/>
-  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FEED-10</seon:jiraKey>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job15__row21">
