@@ -4,13 +4,23 @@
 {% block page_title %}Dashboard | FEED-ON{% endblock %}
 
 {% block page_content %}
-  <section class="container-fluid px-4 py-4" id="dashboard-root" data-endpoint="{% url 'pipeline:dashboard_data' %}">
+  <section
+    class="container-fluid px-4 py-4"
+    id="dashboard-root"
+    data-endpoint="{% url 'pipeline:dashboard_data' %}"
+    data-jira-config-url="{% url 'pipeline:jira_config_status' %}"
+    data-jira-save-url="{% url 'pipeline:save_jira_config' %}"
+    data-jira-test-url="{% url 'pipeline:test_jira_config' %}"
+  >
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div>
         <p class="eyebrow mb-1">Dashboard Analitico</p>
         <h2 class="h3 mb-0">Consolidacao do pipeline FEED-ON</h2>
       </div>
       <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" id="configure-jira-btn" type="button">Configurar Jira</button>
+        <button class="btn btn-primary" id="export-selected-jira-btn" type="button" disabled>Exportar Selecionados para o Jira</button>
+        <button class="btn btn-outline-danger" id="delete-selected-job-btn" type="button" disabled>Deletar job</button>
         <a class="btn btn-outline-success" id="export-csv-btn" href="#">Baixar CSV</a>
         <a class="btn btn-dark" id="export-docx-btn" href="#">Gerar Relatorio DOCX</a>
       </div>
@@ -22,7 +32,12 @@
         <select id="job-filter" class="form-select">
           {% if jobs %}
             {% for job in jobs %}
-              <option value="{{ job.id }}" {% if selected_job and selected_job.id == job.id %}selected{% endif %}>
+              <option
+                value="{{ job.id }}"
+                data-status="{{ job.status }}"
+                data-delete-url="{% url 'pipeline:delete_job' job.id %}"
+                {% if selected_job and selected_job.id == job.id %}selected{% endif %}
+              >
                 #{{ job.id }} - {{ job.original_filename }} ({{ job.get_status_display }})
               </option>
             {% endfor %}
@@ -52,6 +67,53 @@
       <div class="dashboard-note" id="dashboard-job-meta">Sem dados carregados.</div>
     </div>
 
+    <div class="jira-export-status" id="jira-export-status" role="status" aria-live="polite" hidden>
+      <span class="jira-export-spinner" aria-hidden="true"></span>
+      <span id="jira-export-status-text"></span>
+    </div>
+
+    <div class="jira-config-modal" id="jira-config-modal" hidden>
+      <div class="jira-config-dialog" role="dialog" aria-modal="true" aria-labelledby="jira-config-title">
+        <div class="jira-config-header">
+          <div>
+            <p class="eyebrow mb-1">Integracao Jira</p>
+            <h3 id="jira-config-title">Configurar credenciais</h3>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" id="close-jira-config" type="button">Fechar</button>
+        </div>
+        <div class="jira-config-help">
+          <p><strong>Onde encontrar os dados:</strong></p>
+          <p><strong>URL do Jira:</strong> fica no navegador, por exemplo <code>https://suaempresa.atlassian.net</code>.</p>
+          <p><strong>E-mail/usuario:</strong> use o e-mail da conta Atlassian que criou o token.</p>
+          <p><strong>API token:</strong> crie em <code>id.atlassian.com/manage-profile/security/api-tokens</code>.</p>
+          <p><strong>Chave do projeto:</strong> aparece antes do numero da issue, por exemplo em <code>FEED-12</code> a chave e <code>FEED</code>.</p>
+        </div>
+        <form id="jira-config-form" class="jira-config-form">
+          <label>
+            <span>URL do Jira</span>
+            <input class="form-control" name="server" id="jira-server" type="url" placeholder="https://suaempresa.atlassian.net" required>
+          </label>
+          <label>
+            <span>E-mail / usuario Atlassian</span>
+            <input class="form-control" name="email" id="jira-email" type="email" placeholder="usuario@empresa.com" required>
+          </label>
+          <label>
+            <span>API token</span>
+            <input class="form-control" name="api_token" id="jira-token" type="password" placeholder="Cole o token da Atlassian" required>
+          </label>
+          <label>
+            <span>Chave do projeto</span>
+            <input class="form-control" name="project_key" id="jira-project-key" type="text" placeholder="FEED" required>
+          </label>
+          <div class="jira-config-actions">
+            <button class="btn btn-outline-primary" id="test-jira-config" type="button">Testar comunicacao com o Jira</button>
+            <button class="btn btn-primary" type="submit">Salvar configuracao</button>
+          </div>
+        </form>
+        <div class="jira-config-message" id="jira-config-message" role="status" aria-live="polite" hidden></div>
+      </div>
+    </div>
+
     <div class="metric-grid mb-4">
       <article class="metric-card">
         <h3>Total de feedbacks</h3>
@@ -70,34 +132,49 @@
     <div class="charts-grid mb-4">
       <article class="chart-card">
         <h3>Distribuicao de Consequencias (%)</h3>
-        <canvas id="consequence-chart" height="220"></canvas>
+        <canvas id="consequence-chart" height="130"></canvas>
       </article>
       <article class="chart-card">
         <h3>Top 5 Features Criticas (Correction)</h3>
-        <canvas id="critical-chart" height="220"></canvas>
+        <canvas id="critical-chart" height="130"></canvas>
       </article>
-      <article class="chart-card chart-card-wide">
+      <article class="chart-card">
         <h3>Media de Sentimento por Categoria</h3>
-        <canvas id="sentiment-chart" height="140"></canvas>
+        <canvas id="sentiment-chart" height="130"></canvas>
       </article>
     </div>
 
     <article class="chart-card">
-      <h3>Top 10 Critical Issues</h3>
-      <div class="table-responsive">
-        <table class="table table-sm align-middle mb-0">
+      <h3>Feedbacks para exportacao Jira</h3>
+      <div class="critical-table-wrap">
+        <table class="table table-sm align-middle mb-0 critical-issues-table">
+          <colgroup>
+            <col class="critical-col-select">
+            <col class="critical-col-id">
+            <col class="critical-col-text">
+            <col class="critical-col-sentiment">
+            <col class="critical-col-target">
+            <col class="critical-col-consequence">
+            <col class="critical-col-jira">
+            <col class="critical-col-action">
+          </colgroup>
           <thead>
             <tr>
+              <th>
+                <input class="form-check-input" id="select-all-feedbacks" type="checkbox" aria-label="Selecionar todos os feedbacks pendentes">
+              </th>
               <th>ID</th>
               <th>Texto</th>
               <th>Sentimento</th>
               <th>Alvo Inferido</th>
+              <th>Consequencia</th>
               <th>Jira</th>
+              <th>Acao</th>
             </tr>
           </thead>
           <tbody id="critical-issues-body">
             <tr>
-              <td colspan="5" class="text-muted">Selecione um job para visualizar os dados.</td>
+              <td colspan="8" class="text-muted">Selecione um job para visualizar os dados.</td>
             </tr>
           </tbody>
         </table>

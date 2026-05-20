@@ -1,4 +1,5 @@
 ﻿import csv
+import json
 from io import BytesIO
 from threading import Thread
 from urllib.parse import urlencode
@@ -12,10 +13,12 @@ from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
 from .models import FeedbackRecord, PipelineEvent, ProcessingJob
-from .services.ontology import FeedOnOntologyService
+from .services.jira import JiraConfig, criar_ticket_jira, settings_jira_config, testar_comunicacao_jira
+from .services.ontology import FeedOnOntologyService, atualizar_jira_key_na_ontologia
 from .services.processor import process_job
 from .tasks import process_feedback_job
 
@@ -89,12 +92,186 @@ def cancel_job(request: HttpRequest, job_id: int):
     return JsonResponse({"status": job.status, "message": "Cancelamento solicitado."})
 
 
+@require_POST
+def delete_job(request: HttpRequest, job_id: int):
+    job = get_object_or_404(ProcessingJob, pk=job_id)
+    if job.status != ProcessingJob.Status.COMPLETED:
+        return JsonResponse(
+            {"error": "Apenas jobs concluidos podem ser deletados."},
+            status=400,
+        )
+
+    upload = job.upload
+    filename = job.original_filename
+    upload.delete(save=False)
+    job.delete()
+    return JsonResponse({"deleted": True, "job_id": job_id, "message": f"Job {job_id} ({filename}) deletado."})
+
+
+@require_POST
+def export_selected_to_jira(request: HttpRequest, job_id: int):
+    print("DEBUG BODY:", request.body)
+    print("DEBUG POST:", request.POST)
+    job = get_object_or_404(ProcessingJob, pk=job_id)
+    jira_config = _jira_config_from_session(request)
+    if jira_config is None:
+        return JsonResponse(
+            {
+                "error": (
+                    "Configure os dados de integracao com o Jira antes de exportar. "
+                    "Use o botao 'Configurar Jira' no dashboard."
+                )
+            },
+            status=400,
+        )
+    try:
+        selected_ids = _selected_feedback_ids_from_request(request)
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+
+    selected_ids = list(dict.fromkeys(selected_ids))
+    if not selected_ids:
+        return JsonResponse({"error": "Selecione ao menos um feedback."}, status=400)
+
+    records = list(FeedbackRecord.objects.filter(job=job, id__in=selected_ids).order_by("id"))
+    found_ids = {record.id for record in records}
+    missing_ids = [item for item in selected_ids if item not in found_ids]
+    if missing_ids:
+        return JsonResponse({"error": f"Feedbacks nao encontrados neste job: {missing_ids}"}, status=404)
+
+    rows = []
+    errors = []
+    for record in records:
+        if record.jira_key and record.jira_status == FeedbackRecord.JiraStatus.CREATED:
+            rows.append(_jira_export_row(record))
+            continue
+
+        try:
+            target_class = _target_class_for_jira(record)
+            severity = "Correction" if record.consequence == "Correction" else "Improvement"
+            jira_key = criar_ticket_jira(record.text, target_class, severity, config=jira_config)
+            ontology_source_id = _ontology_source_id_for_record(record)
+            atualizar_jira_key_na_ontologia(ontology_source_id, record.consequence, jira_key)
+
+            record.jira_key = jira_key
+            record.jira_status = FeedbackRecord.JiraStatus.CREATED
+            record.processing_error = ""
+            record.jira_payload = {
+                **(record.jira_payload or {}),
+                "manual_export": True,
+                "ontology_source_id": ontology_source_id,
+                "target_class": target_class,
+            }
+            record.save(update_fields=["jira_key", "jira_status", "processing_error", "jira_payload", "updated_at"])
+            rows.append(_jira_export_row(record))
+        except Exception as exc:
+            record.jira_status = FeedbackRecord.JiraStatus.FAILED
+            record.processing_error = _friendly_jira_error(exc, jira_config.project_key)
+            record.save(update_fields=["jira_status", "processing_error", "updated_at"])
+            errors.append({"id": record.id, "source_id": record.source_id, "error": record.processing_error})
+
+    job.jira_created = FeedbackRecord.objects.filter(
+        job=job,
+        jira_status=FeedbackRecord.JiraStatus.CREATED,
+    ).exclude(jira_key="").count()
+    job.save(update_fields=["jira_created", "updated_at"])
+
+    if errors and not rows:
+        first_error = errors[0]["error"] if errors else "Falha ao exportar feedbacks para o Jira."
+        return JsonResponse(
+            {
+                "error": f"Falha ao exportar os feedbacks selecionados: {first_error}",
+                "exported": rows,
+                "errors": errors,
+                "jira_created": job.jira_created,
+            },
+            status=502,
+        )
+
+    status = 207 if errors and rows else 200
+    return JsonResponse({"exported": rows, "errors": errors, "jira_created": job.jira_created}, status=status)
+
+
+@require_GET
+def jira_config_status(request: HttpRequest):
+    config = _jira_config_from_session(request)
+    if config is None:
+        env_config = settings_jira_config()
+        return JsonResponse(
+            {
+                "configured": False,
+                "defaults": {
+                    "server": env_config.server,
+                    "email": env_config.email,
+                    "project_key": env_config.project_key,
+                    "has_api_token": bool(env_config.api_token),
+                },
+            }
+        )
+
+    return JsonResponse(
+        {
+            "configured": True,
+            "server": config.server,
+            "email": config.email,
+            "project_key": config.project_key,
+            "has_api_token": bool(config.api_token),
+        }
+    )
+
+
+@require_POST
+def save_jira_config(request: HttpRequest):
+    try:
+        config = _jira_config_from_payload(request)
+    except ValueError as exc:
+        return JsonResponse({"error": str(exc)}, status=400)
+
+    request.session["jira_config"] = {
+        "server": config.server,
+        "email": config.email,
+        "api_token": config.api_token,
+        "project_key": config.project_key,
+    }
+    request.session.modified = True
+    return JsonResponse(
+        {
+            "configured": True,
+            "server": config.server,
+            "email": config.email,
+            "project_key": config.project_key,
+            "message": "Configuracao Jira salva para esta sessao.",
+        }
+    )
+
+
+@require_POST
+def test_jira_config(request: HttpRequest):
+    config = None
+    try:
+        config = _jira_config_from_payload(request)
+        result = testar_comunicacao_jira(config)
+    except Exception as exc:
+        return JsonResponse({"ok": False, "error": _friendly_jira_error(exc, config.project_key if config else None)}, status=400)
+
+    return JsonResponse(
+        {
+            "ok": True,
+            "message": "Comunicacao com o Jira realizada com sucesso.",
+            "project_key": result["project_key"],
+            "server_title": result["server_title"],
+            "issue_types": result["issue_types"],
+        }
+    )
+
+
 @require_GET
 def job_status(request: HttpRequest, job_id: int):
     job = get_object_or_404(ProcessingJob, pk=job_id)
     events = list(job.events.values("level", "message", "created_at", "metadata"))
     feedbacks = list(
         FeedbackRecord.objects.filter(job=job).values(
+            "id",
             "source_id",
             "text",
             "intent",
@@ -110,11 +287,15 @@ def job_status(request: HttpRequest, job_id: int):
             "processing_error",
         )[:200]
     )
+    for feedback in feedbacks:
+        feedback["explanation"] = _feedback_explanation(feedback)
 
     payload = {
         "id": job.id,
         "status": job.status,
         "current_phase": job.current_phase,
+        "pipeline_steps": _pipeline_steps(job),
+        "csv_inspection": (job.metadata or {}).get("csv_inspection", {}),
         "total_rows": job.total_rows,
         "processed_rows": job.processed_rows,
         "row_limit": job.row_limit,
@@ -130,6 +311,7 @@ def job_status(request: HttpRequest, job_id: int):
 
 
 @require_GET
+@ensure_csrf_cookie
 def dashboard(request: HttpRequest):
     jobs = list(ProcessingJob.objects.all()[:50])
     selected_job = _resolve_selected_job(request, jobs=jobs)
@@ -338,6 +520,8 @@ def _job_urls(request: HttpRequest, job: ProcessingJob) -> dict:
         "job_id": job.id,
         "status_url": request.build_absolute_uri(reverse("pipeline:job_status", args=[job.id])),
         "cancel_url": request.build_absolute_uri(reverse("pipeline:cancel_job", args=[job.id])),
+        "delete_url": request.build_absolute_uri(reverse("pipeline:delete_job", args=[job.id])),
+        "export_jira_url": request.build_absolute_uri(reverse("pipeline:export_selected_to_jira", args=[job.id])),
     }
 
 
@@ -442,11 +626,10 @@ def _build_dashboard_snapshot(
         .order_by("-total", "inferred_target")[:6]
     )
 
-    critical_issues = list(
-        feedbacks.filter(consequence="Correction")
-        .annotate(sentiment_sort=Coalesce("sentiment_score", Value(1.0), output_field=FloatField()))
+    dashboard_rows = list(
+        feedbacks.annotate(sentiment_sort=Coalesce("sentiment_score", Value(1.0), output_field=FloatField()))
         .order_by("sentiment_sort", "id")
-        .values("source_id", "text", "sentiment_score", "inferred_target", "jira_key")[:10]
+        .values("id", "source_id", "text", "sentiment_score", "inferred_target", "consequence", "jira_key", "jira_status")[:50]
     )
 
     filter_query = urlencode({"job": job.id, "sentiment": sentiment_filter, "consequence": consequence_filter})
@@ -461,6 +644,7 @@ def _build_dashboard_snapshot(
             "processed_rows": job.processed_rows,
             "total_rows": job.total_rows,
             "finished_at": timezone.localtime(job.finished_at).isoformat() if job.finished_at else None,
+            "export_jira_url": request.build_absolute_uri(reverse("pipeline:export_selected_to_jira", args=[job.id])),
         },
         "filters": {"sentiment": sentiment_filter, "consequence": consequence_filter},
         "cards": {
@@ -484,14 +668,17 @@ def _build_dashboard_snapshot(
         },
         "top_critical_issues": [
             {
+                "id": item["id"],
                 "source_id": item["source_id"],
                 "text": item["text"],
                 "sentiment_score": _format_sentiment(item["sentiment_score"]),
                 "inferred_target": item["inferred_target"] or "-",
+                "consequence": item["consequence"] or "-",
                 "jira_key": item["jira_key"] or "-",
+                "jira_status": item["jira_status"] or FeedbackRecord.JiraStatus.PENDING,
                 "jira_url": _jira_issue_url(item["jira_key"]),
             }
-            for item in critical_issues
+            for item in dashboard_rows
         ],
         "export_urls": {
             "csv": request.build_absolute_uri(csv_url),
@@ -510,6 +697,7 @@ def _semantic_inferred_target(ontology: FeedOnOntologyService, record: FeedbackR
             text=record.text,
             intent=record.intent,
             technical_target=technical_target,
+            create_jira_issue=False,
         )
         semantic_value = ontology.inferred_target_for(source_id)
         return semantic_value or result.inferred_target or record.inferred_target or technical_target
@@ -520,7 +708,7 @@ def _semantic_inferred_target(ontology: FeedOnOntologyService, record: FeedbackR
 def _jira_issue_url(jira_key: str) -> str:
     if not jira_key:
         return ""
-    base = (settings.JIRA_URL or "").rstrip("/")
+    base = (settings.JIRA_SERVER or settings.JIRA_URL or "").rstrip("/")
     if not base:
         return jira_key
     return f"{base}/browse/{jira_key}"
@@ -533,6 +721,187 @@ def _format_sentiment(value) -> str:
         return f"{float(value):.2f}"
     except (TypeError, ValueError):
         return "-"
+
+
+def _pipeline_steps(job: ProcessingJob) -> list[dict]:
+    steps = list((job.metadata or {}).get("pipeline_steps") or [])
+    if steps:
+        return steps
+    return [
+        {"key": "upload", "label": "Upload recebido", "status": "completed" if job.id else "pending", "message": ""},
+        {"key": "csv_validation", "label": "Leitura e validacao do CSV", "status": "pending", "message": ""},
+        {"key": "ai_processing", "label": "Analise IA / fallback local", "status": "pending", "message": ""},
+        {"key": "ontology", "label": "Instanciacao FEED-ON", "status": "pending", "message": ""},
+        {"key": "reasoner", "label": "Reasoner ontologico", "status": "pending", "message": ""},
+        {"key": "jira", "label": "Exportacao manual Jira", "status": "pending", "message": ""},
+        {"key": "done", "label": "Finalizacao", "status": "pending", "message": ""},
+    ]
+
+
+def _feedback_explanation(row: dict) -> dict:
+    provider = row.get("ai_provider") or "local"
+    ai_intent = row.get("ai_intent") or "-"
+    intent = row.get("intent") or "-"
+    sentiment = _format_sentiment(row.get("sentiment_score"))
+    target_candidate = row.get("target_candidate") or "-"
+    technical_target = row.get("technical_target") or "-"
+    inferred_target = row.get("inferred_target") or technical_target
+    consequence = row.get("consequence") or "-"
+
+    reasons = []
+    if consequence == "Correction":
+        reasons.append("classificado como correcao por intencao de reporte, sentimento negativo ou sinal de falha")
+    elif consequence == "Improvement":
+        reasons.append("classificado como melhoria por intencao de sugestao ou sentimento nao negativo")
+    elif consequence == "Prioritization":
+        reasons.append("classificado como priorizacao por sinal de urgencia/criticidade")
+    if provider == "openai":
+        reasons.append("analise semantica feita via OpenAI")
+    elif provider == "csv":
+        reasons.append("intencao aproveitada do proprio CSV")
+    else:
+        reasons.append("analise semantica feita por fallback local")
+    if inferred_target and inferred_target != technical_target:
+        reasons.append("alvo enriquecido pela relacao partOf da FEED-ON")
+
+    return {
+        "summary": f"{consequence}: {technical_target} -> {inferred_target}",
+        "details": [
+            f"Intencao FEED-ON: {intent}",
+            f"Intencao IA/origem: {ai_intent}",
+            f"Sentimento: {sentiment}",
+            f"Alvo candidato: {target_candidate}",
+            f"Alvo tecnico: {technical_target}",
+            f"Alvo inferido: {inferred_target or '-'}",
+            f"Fonte: {provider}",
+        ],
+        "reason": "; ".join(reasons) + ".",
+    }
+
+
+def _selected_feedback_ids_from_request(request: HttpRequest) -> list[int]:
+    content_type = (request.content_type or "").split(";", 1)[0].strip().lower()
+    if content_type == "application/json":
+        try:
+            data = json.loads(request.body.decode("utf-8") or "{}")
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Payload JSON invalido: {exc}") from exc
+        raw_ids = data.get("feedbacks", data.get("feedback_ids", []))
+    else:
+        raw_ids = request.POST.getlist("feedbacks") or request.POST.getlist("feedback_ids")
+        if not raw_ids:
+            raw_ids = request.POST.get("feedbacks") or request.POST.get("feedback_ids") or []
+
+    if isinstance(raw_ids, str):
+        try:
+            parsed = json.loads(raw_ids)
+            raw_ids = parsed if isinstance(parsed, list) else raw_ids
+        except json.JSONDecodeError:
+            raw_ids = [item.strip() for item in raw_ids.split(",") if item.strip()]
+
+    if not isinstance(raw_ids, list):
+        raise ValueError("O payload deve enviar uma lista no campo 'feedbacks'.")
+
+    try:
+        selected_ids = [int(item) for item in raw_ids]
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Todos os itens de 'feedbacks' precisam ser IDs inteiros.") from exc
+
+    return list(dict.fromkeys(selected_ids))
+
+
+def _jira_config_from_session(request: HttpRequest) -> JiraConfig | None:
+    raw = request.session.get("jira_config") or {}
+    config = JiraConfig(
+        server=(raw.get("server") or "").strip(),
+        email=(raw.get("email") or "").strip(),
+        api_token=(raw.get("api_token") or "").strip(),
+        project_key=(raw.get("project_key") or "").strip().upper(),
+    )
+    if all([config.server, config.email, config.api_token, config.project_key]):
+        return config
+    return None
+
+
+def _jira_config_from_payload(request: HttpRequest) -> JiraConfig:
+    if (request.content_type or "").split(";", 1)[0].strip().lower() == "application/json":
+        try:
+            data = json.loads(request.body.decode("utf-8") or "{}")
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Payload JSON invalido: {exc}") from exc
+    else:
+        data = request.POST
+
+    config = JiraConfig(
+        server=(data.get("server") or "").strip().rstrip("/"),
+        email=(data.get("email") or "").strip(),
+        api_token=(data.get("api_token") or "").strip(),
+        project_key=(data.get("project_key") or "").strip().upper(),
+    )
+    missing = []
+    if not config.server:
+        missing.append("URL do Jira")
+    if not config.email:
+        missing.append("E-mail/usuario")
+    if not config.api_token:
+        missing.append("API token")
+    if not config.project_key:
+        missing.append("Chave do projeto")
+    if missing:
+        raise ValueError(f"Preencha os campos obrigatorios: {', '.join(missing)}.")
+    return config
+
+
+def _friendly_jira_error(exc: Exception, project_key: str | None = None) -> str:
+    message = str(exc)
+    lowered = message.lower()
+    key = project_key or settings.JIRA_PROJECT_KEY or "FEED"
+    if "specify a valid issue type" in lowered or '"issuetype"' in lowered:
+        return (
+            "O Jira rejeitou todos os tipos tecnicos testados para criar o item no backlog. "
+            "A classificacao do feedback ja esta indo apenas na descricao; ainda assim a API do Jira exige um tipo interno valido. "
+            f"Confira se a conta tem permissao para criar issues no projeto {key}."
+        )
+    if "no project could be found" in lowered or "browse projects" in lowered or "create issues" in lowered:
+        return (
+            "Nao foi possivel acessar o projeto Jira configurado. "
+            f"A tentativa usou a chave de projeto {key}. "
+            "Abra 'Configurar Jira', confirme a chave correta e salve novamente; "
+            "confira tambem se a conta autenticada tem permissao para visualizar esse projeto e criar issues."
+        )
+    return message
+
+
+def _jira_export_row(record: FeedbackRecord) -> dict:
+    return {
+        "id": record.id,
+        "source_id": record.source_id,
+        "jira_key": record.jira_key,
+        "jira_status": record.jira_status,
+        "jira_url": _jira_issue_url(record.jira_key),
+    }
+
+
+def _target_class_for_jira(record: FeedbackRecord) -> str:
+    value = record.inferred_target or record.technical_target or record.target_candidate or "Feature"
+    for separator in ("_", "."):
+        if separator in value:
+            return value.split(separator, 1)[0] or "Feature"
+    return value or "Feature"
+
+
+def _ontology_source_id_for_record(record: FeedbackRecord) -> str:
+    payload = record.jira_payload or {}
+    ontology_source_id = payload.get("ontology_source_id")
+    if ontology_source_id:
+        return ontology_source_id
+
+    ordered_ids = list(FeedbackRecord.objects.filter(job=record.job).order_by("id").values_list("id", flat=True))
+    try:
+        ordinal = ordered_ids.index(record.id) + 1
+    except ValueError:
+        ordinal = record.id
+    return f"{record.source_id or 'unknown'}__job{record.job_id}__row{ordinal}"
 
 
 def _chart_textual_summary(labels: list[str], values: list[float], suffix: str) -> str:

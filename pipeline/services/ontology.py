@@ -1,5 +1,7 @@
 ﻿import logging
 import re
+import unicodedata
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -14,6 +16,65 @@ TARGET_PARENT_RULES = {
     "UIElement.Filter.Date": "Feature.SearchAndFiltering",
     "UIElement.Search": "Feature.SearchAndFiltering",
 }
+SEMANTIC_TARGET_MAP = {
+    "UIElement": (
+        r"\bbutton\b",
+        r"\bscreen\b",
+        r"\bclick\b",
+        r"\bui\b",
+        r"\binterface\b",
+        r"\bicon\b",
+        r"\bbrightness\b",
+        r"\bplayer layout\b",
+        r"\bdisplay\b",
+        r"\bborda\b",
+        r"\btela\b",
+        r"\bbotão\b",
+        r"\bvisual\b",
+    ),
+    "QualityAttribute": (
+        r"\bslow\b",
+        r"\bbuffering\b",
+        r"\blag\b",
+        r"\bcrash\b",
+        r"\bfreeze\b",
+        r"\bloading\b",
+        r"\bquality\b",
+        r"\bresolution\b",
+        r"\bpixel\b",
+        r"\baudio quality\b",
+        r"\busabilidade\b",
+        r"\btravando\b",
+        r"\blento\b",
+    ),
+    "Requirement": (
+        r"\bhousehold\b",
+        r"\bsubscription\b",
+        r"\bpay\b",
+        r"\bmoney\b",
+        r"\bpremium\b",
+        r"\brules\b",
+        r"\baccount\b",
+        r"\blogin\b",
+        r"\bpassword\b",
+        r"\bfamily sharing\b",
+        r"\bpreço\b",
+        r"\bassinatura\b",
+        r"\bperfil\b",
+        r"\bprofile\b",
+    ),
+    "Process": (
+        r"\btroubleshooting\b",
+        r"\bhelp centre\b",
+        r"\brefunding\b",
+        r"\brecharge\b",
+        r"\batendimento\b",
+        r"\bsuporte\b",
+        r"\bcontato\b",
+        r"\bajuda\b",
+        r"\bwebsite\b",
+    ),
+}
 
 INTENTION_CLASS_MARKERS = {"Intention_BugReport", "Intention_Suggestion", "BugReport", "Suggestion"}
 FUNCTIONAL_DEBUG_PROPERTIES = {"hasIntention", "commentText", "sentimentScore", "jiraKey"}
@@ -23,19 +84,68 @@ FEED_ON_CLASS_IRIS = {
     "ConsequenceExpected": "FEED-ON::ConsequenceExpected",
     "EndUser": "FEED-ON::EndUser",
     "ExternalAgent": "FEED-ON::ExternalAgent",
+    "ExplicitFeedbackElicitationTechnique": "ExplicitFeedbackElicitationTechnique",
     "Feedback": "FEED-ON::Feedback",
     "FeedbackAttribute": "FEED-ON::FeedbackAttribute",
+    "ImplicitFeedbackElicitationTechnique": "ImplicitFeedbackElicitationTechnique",
     "InternalAgent": "FEED-ON::InternalAgent",
+    "Sentiment": "Sentiment",
     "Target": "FEED-ON::Target",
 }
 CONSEQUENCE_CLASSES = {"Correction", "Improvement", "Prioritization"}
 TARGET_ROOT_CLASSES = {"DataItem", "Feature", "Process", "QualityAttribute", "Requirement", "UIElement"}
 
 
+def classify_target(text: str) -> tuple[str, str]:
+    """
+    Analisa o texto do feedback e infere a classe e o individuo do Target
+    com base nas heuristicas de dominio da FEED-ON.
+    """
+    text_lower = (text or "").lower()
+    normalized_text = _strip_accents(text_lower)
+
+    for target_class, keywords in SEMANTIC_TARGET_MAP.items():
+        for keyword_regex in keywords:
+            normalized_regex = _strip_accents(keyword_regex)
+            if re.search(keyword_regex, text_lower) or re.search(normalized_regex, normalized_text):
+                clean_keyword = _clean_keyword_for_individual(keyword_regex)
+                instance_name = f"{target_class}_{clean_keyword.title().replace(' ', '')}"
+                return target_class, _safe_name(instance_name)
+
+    return "Feature", "Feature_General"
+
+
+def atualizar_jira_key_na_ontologia(source_id: str, consequence: str, jira_key: str) -> None:
+    from owlready2 import DataProperty, World
+
+    ontology_path = FeedOnOntologyService()._resolve_ontology_path()
+    if ontology_path is None:
+        raise RuntimeError("Arquivo de ontologia nao encontrado para atualizar jiraKey.")
+
+    world = World()
+    try:
+        onto = world.get_ontology(str(ontology_path)).load()
+    except Exception:
+        onto = world.get_ontology(ontology_path.as_uri()).load()
+
+    safe_id = _safe_name(source_id)
+    consequence_name = f"{_valid_consequence(consequence)}_{safe_id}"
+    consequence_individual = onto.search_one(iri=f"*{consequence_name}")
+    if consequence_individual is None:
+        raise RuntimeError(f"Individuo de consequencia nao encontrado na ontologia: {consequence_name}")
+
+    with onto:
+        jira_key_prop = _data_property_or_create(onto, "jiraKey", DataProperty)
+
+    _set_data_property(consequence_individual, jira_key_prop, jira_key, replace=True)
+    onto.save(file=str(ontology_path))
+
+
 @dataclass(frozen=True)
 class OntologyResult:
     inferred_target: str
     consequence: str
+    jira_key: str = ""
     warnings: tuple[str, ...] = ()
 
 
@@ -73,17 +183,38 @@ class FeedOnOntologyService:
         self.last_source_id = ""
         return removed
 
-    def interpret(self, source_id: str, text: str, intent: str, technical_target: str) -> OntologyResult:
+    def interpret(
+        self,
+        source_id: str,
+        text: str,
+        intent: str,
+        technical_target: str,
+        sentiment_score: float | None = None,
+        ai_provider: str = "",
+        create_jira_issue: bool = False,
+    ) -> OntologyResult:
         warnings = []
         if self.load_warning:
             warnings.append(self.load_warning)
 
-        inferred_target = self._fallback_inferred_target(technical_target)
-        consequence = self._derive_consequence(intent, text)
+        target_class, target_instance_name = classify_target(text)
+        inferred_target = target_instance_name
+        consequence = self._derive_consequence(intent, text, sentiment_score)
+        jira_key = ""
 
         if self.loaded:
             try:
-                self._instantiate_feedback(source_id, text, intent, technical_target, inferred_target, consequence)
+                self._instantiate_feedback(
+                    source_id,
+                    text,
+                    intent,
+                    target_class,
+                    target_instance_name,
+                    consequence,
+                    sentiment_score,
+                    ai_provider,
+                    create_jira_issue,
+                )
             except Exception as exc:  # pragma: no cover
                 message = f"Ontologia carregada, mas a instanciacao falhou para {source_id}: {exc}"
                 logger.warning(message)
@@ -96,7 +227,12 @@ class FeedOnOntologyService:
                     )
                 warnings.append(message)
 
-        return OntologyResult(inferred_target=inferred_target, consequence=consequence, warnings=tuple(warnings))
+        return OntologyResult(
+            inferred_target=inferred_target,
+            consequence=consequence,
+            jira_key=jira_key,
+            warnings=tuple(warnings),
+        )
 
     def run_reasoner(self) -> tuple[bool, str]:
         if not self.loaded or not settings.FEED_ON_RUN_REASONER:
@@ -113,6 +249,11 @@ class FeedOnOntologyService:
         except Exception as exc:  # pragma: no cover
             return self._handle_reasoner_exception(exc)
 
+    def save(self) -> None:
+        if not self.loaded or self.ontology is None or self.ontology_path is None:
+            return
+        self.ontology.save(file=str(self.ontology_path))
+
     def inferred_target_for(self, source_id: str) -> str:
         if self.ontology is None:
             return ""
@@ -128,8 +269,9 @@ class FeedOnOntologyService:
                 inferred_from_part = self._target_parent_name(target)
                 if inferred_from_part:
                     return inferred_from_part
-                if getattr(target, "name", "").lower().startswith("feature"):
-                    return _display_name(target.name)
+                target_name = getattr(target, "name", "")
+                if target_name:
+                    return _display_name(target_name)
         return ""
 
     def consequence_for(self, source_id: str) -> str:
@@ -348,14 +490,17 @@ class FeedOnOntologyService:
         source_id: str,
         text: str,
         intent: str,
-        technical_target: str,
-        inferred_target: str,
+        target_class_name: str,
+        target_instance_name: str,
         consequence: str,
-    ) -> None:
+        sentiment_score: float | None = None,
+        ai_provider: str = "",
+        create_jira_issue: bool = False,
+    ) -> str:
         from owlready2 import DataProperty, ObjectProperty, Thing
 
         onto = self.ontology
-        safe_id = _safe_name(source_id)
+        safe_id = _safe_name(source_id or uuid.uuid4().hex)
         feedback_name = f"Feedback_{safe_id}"
 
         existing_feedback = onto.search_one(iri=f"*{feedback_name}")
@@ -373,37 +518,71 @@ class FeedOnOntologyService:
 
         with onto:
             feedback_cls = _class_or_create(onto, "Feedback", Thing, iri_suffix=FEED_ON_CLASS_IRIS["Feedback"])
-            target_cls = _target_class_for(onto, technical_target, Thing)
-            inferred_cls = _target_class_for(onto, inferred_target, Thing)
+            target_cls = _class_or_create(onto, target_class_name, Thing)
             consequence_cls = _class_or_create(onto, _valid_consequence(consequence), Thing)
+            elicitation_class_name = _elicitation_class_name(ai_provider)
+            elicitation_cls = _class_or_create(
+                onto,
+                elicitation_class_name,
+                Thing,
+                iri_suffix=FEED_ON_CLASS_IRIS[elicitation_class_name],
+            )
+            external_agent_cls = _class_or_create(
+                onto,
+                "ExternalAgent",
+                Thing,
+                iri_suffix=FEED_ON_CLASS_IRIS["ExternalAgent"],
+            )
             intention_cls = _class_or_create(onto, "Intention", Thing)
+            sentiment_cls = _class_or_create(onto, "Sentiment", Thing, iri_suffix=FEED_ON_CLASS_IRIS["Sentiment"])
             refers_to = _object_property_or_create(onto, "refersTo", ObjectProperty)
-            part_of = _object_property_or_create(onto, "partOf", ObjectProperty)
             has_intention = _object_property_or_create(onto, "hasIntention", ObjectProperty)
+            has_sentiment = _object_property_or_create(onto, "hasSentiment", ObjectProperty)
             indicates = _object_property_or_create(onto, "indicates", ObjectProperty)
+            aims_to_evolve = _object_property_or_create(onto, "aimsToEvolve", ObjectProperty)
+            is_elicited_through = _object_property_or_create(onto, "isElicitedThrough", ObjectProperty)
+            is_provided_by = _object_property_or_create(onto, "isProvidedBy", ObjectProperty)
             comment_text = _data_property_or_create(onto, "commentText", DataProperty)
+            is_processed = _data_property_or_create(onto, "isProcessed", DataProperty)
+            sentiment_score_prop = _data_property_or_create(onto, "sentimentScore", DataProperty)
+            jira_key = _data_property_or_create(onto, "jiraKey", DataProperty)
 
         feedback = feedback_cls(feedback_name)
-        target = _individual_or_create(onto, _safe_name(technical_target), target_cls)
-        inferred = _individual_or_create(onto, _safe_name(inferred_target), inferred_cls)
+        target = _individual_or_create(onto, target_instance_name, target_cls)
         intention = _individual_or_create(onto, _intention_individual_name(intent), intention_cls)
-        consequence_individual = _replace_consequence_individual(onto, f"Consequence_{safe_id}", consequence_cls)
+        consequence_individual = _replace_consequence_individual(
+            onto,
+            f"{_valid_consequence(consequence)}_{safe_id}",
+            consequence_cls,
+        )
+        elicitation = _individual_or_create(onto, _elicitation_individual_name(ai_provider), elicitation_cls)
+        provider = _individual_or_create(onto, f"ExternalAgent_{safe_id}", external_agent_cls)
 
         self._clear_previous_intention_classifications(feedback)
 
         feedback.label = [f"Feedback {source_id}"]
         _set_data_property(feedback, comment_text, text, replace=True)
+        _set_data_property(feedback, is_processed, True, replace=True)
         _set_object_property(feedback, has_intention, intention, replace=True)
         _set_object_property(feedback, refers_to, target, replace=True)
         _set_object_property(feedback, indicates, consequence_individual, replace=True)
+        _set_object_property(feedback, is_elicited_through, elicitation, replace=True)
+        _set_object_property(feedback, is_provided_by, provider, replace=True)
 
-        if target is not inferred:
-            _set_object_property(target, part_of, inferred, replace=False)
+        if sentiment_score is not None:
+            sentiment = _replace_sentiment_individual(onto, f"Sentiment_{safe_id}", sentiment_cls)
+            _set_data_property(sentiment, sentiment_score_prop, float(sentiment_score), replace=True)
+            _set_object_property(feedback, has_sentiment, sentiment, replace=True)
+
+        _set_object_property(consequence_individual, aims_to_evolve, target, replace=True)
+        created_jira_key = ""
+        _set_data_property(consequence_individual, jira_key, "PENDING", replace=True)
 
         self.feedback_by_source[source_id] = feedback_name
         if source_id not in self.runtime_sources:
             self.runtime_sources.append(source_id)
         self.last_source_id = source_id
+        return created_jira_key
 
     def _clear_previous_intention_classifications(self, feedback) -> None:
         current_classes = list(getattr(feedback, "is_a", []))
@@ -424,7 +603,9 @@ class FeedOnOntologyService:
             return self.part_of_assertions[safe_target]
         return TARGET_PARENT_RULES.get(technical_target, technical_target or "Feature.General")
 
-    def _derive_consequence(self, intent: str, text: str) -> str:
+    def _derive_consequence(self, intent: str, text: str, sentiment_score: float | None = None) -> str:
+        if sentiment_score is not None:
+            return "Correction" if float(sentiment_score) <= -0.5 else "Improvement"
         if intent in {"Intention_BugReport", "BugReport", "Report"}:
             return "Correction"
         if intent in {"Intention_Suggestion", "Suggestion", "FeatureRequest"}:
@@ -462,12 +643,29 @@ def _replace_consequence_individual(onto, name: str, cls):
     return cls(name)
 
 
+def _replace_sentiment_individual(onto, name: str, cls):
+    found = onto.search_one(iri=f"*{name}")
+    if found is not None:
+        _destroy_ontology_entity(found)
+    return cls(name)
+
+
 def _intention_individual_name(intent: str) -> str:
     if intent in {"Intention_BugReport", "BugReport", "Report"}:
         return "Intention_BugReport"
     if intent in {"Intention_Suggestion", "Suggestion", "FeatureRequest"}:
         return "Intention_Suggestion"
     return _safe_name(intent)
+
+
+def _elicitation_class_name(provider: str) -> str:
+    if str(provider or "").strip().lower() == "implicit":
+        return "ImplicitFeedbackElicitationTechnique"
+    return "ExplicitFeedbackElicitationTechnique"
+
+
+def _elicitation_individual_name(provider: str) -> str:
+    return _elicitation_class_name(provider).replace("FeedbackElicitationTechnique", "FeedbackElicitation")
 
 
 def _set_object_property(individual, prop, value, *, replace: bool = False) -> None:
@@ -482,7 +680,7 @@ def _set_object_property(individual, prop, value, *, replace: bool = False) -> N
     setattr(individual, prop.python_name, value)
 
 
-def _set_data_property(individual, prop, value: str, *, replace: bool = False) -> None:
+def _set_data_property(individual, prop, value: Any, *, replace: bool = False) -> None:
     current = getattr(individual, prop.python_name, None)
     if hasattr(current, "append"):
         if replace:
@@ -571,8 +769,17 @@ def _destroy_ontology_entity(entity) -> bool:
 
 
 def _safe_name(value: str) -> str:
-    cleaned = re.sub(r"[^0-9A-Za-z_]+", "_", value or "unknown")
+    cleaned = re.sub(r"[^0-9A-Za-z_]+", "_", _strip_accents(value or "unknown"))
     return cleaned.strip("_") or "unknown"
+
+
+def _clean_keyword_for_individual(keyword_regex: str) -> str:
+    cleaned = keyword_regex.replace(r"\b", "").replace("\\", "").strip()
+    return re.sub(r"\s+", " ", cleaned)
+
+
+def _strip_accents(value: str) -> str:
+    return unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
 
 
 def _safe_class_name(value: str) -> str:

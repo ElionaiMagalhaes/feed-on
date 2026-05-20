@@ -47,7 +47,16 @@
     </form>
 
     <div class="table-responsive result-table">
-      <table class="table table-hover align-middle mb-0">
+      <table class="table table-hover align-middle mb-0 detailed-results-table">
+        <colgroup>
+          <col class="detail-col-id">
+          <col class="detail-col-text">
+          <col class="detail-col-sentiment">
+          <col class="detail-col-target">
+          <col class="detail-col-target">
+          <col class="detail-col-consequence">
+          <col class="detail-col-jira">
+        </colgroup>
         <thead>
           <tr>
             <th>ID</th>
@@ -63,13 +72,13 @@
           {% if rows %}
             {% for row in rows %}
               <tr>
-                <td>{{ row.source_id }}</td>
-                <td>{{ row.text }}</td>
-                <td>{% if row.sentiment_score == None %}-{% else %}{{ row.sentiment_score|floatformat:2 }}{% endif %}</td>
-                <td>{{ row.target_candidate|default:'-' }}</td>
-                <td>{{ row.inferred_target|default:row.technical_target|default:'-' }}</td>
-                <td>{{ row.consequence|default:'-' }}</td>
-                <td>
+                <td class="cell-id">{{ row.source_id }}</td>
+                <td class="cell-text">{{ row.text }}</td>
+                <td class="cell-sentiment">{% if row.sentiment_score == None %}-{% else %}{{ row.sentiment_score|floatformat:2 }}{% endif %}</td>
+                <td class="cell-compact">{{ row.target_candidate|default:'-' }}</td>
+                <td class="cell-compact">{{ row.inferred_target|default:row.technical_target|default:'-' }}</td>
+                <td class="cell-compact">{{ row.consequence|default:'-' }}</td>
+                <td class="cell-jira">
                   {% if row.jira_key %}
                     {% if row.jira_key|slice:':4' == 'http' %}
                       <a href="{{ row.jira_key }}" target="_blank" rel="noopener noreferrer">{{ row.jira_key }}</a>

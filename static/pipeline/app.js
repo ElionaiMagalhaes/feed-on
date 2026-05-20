@@ -9,6 +9,8 @@ const resultBody = document.querySelector("#result-body");
 const rowCount = document.querySelector("#row-count");
 const cancelButton = document.querySelector("#cancel-job");
 const jobDetail = document.querySelector("#job-detail");
+const pipelineSteps = document.querySelector("#pipeline-steps");
+const csvSummary = document.querySelector("#csv-summary");
 const selectedFile = document.querySelector("#selected-file");
 const fileFeedback = document.querySelector("#file-feedback");
 const fileFeedbackName = document.querySelector("#file-feedback-name");
@@ -82,6 +84,8 @@ function setStatus(data) {
   cancelButton.disabled = !isCancelable(data.status) || data.cancel_requested;
   cancelButton.textContent = data.cancel_requested ? "Cancelando..." : "Cancelar processamento";
 
+  renderCsvSummary(data.csv_inspection || {});
+  renderSteps(data.pipeline_steps || []);
   renderRows(data.feedbacks || []);
 
   if (["completed", "failed", "canceled"].includes(data.status)) {
@@ -89,6 +93,32 @@ function setStatus(data) {
     pollTimer = null;
     cancelButton.disabled = true;
   }
+}
+
+function renderCsvSummary(summary) {
+  if (!csvSummary) {
+    return;
+  }
+  if (!summary.valid_rows) {
+    csvSummary.hidden = true;
+    csvSummary.innerHTML = "";
+    return;
+  }
+
+  const columns = [
+    ["Texto", summary.text_column],
+    ["ID", summary.id_column || "linha"],
+    ["Alvo", summary.target_column || "inferido"],
+    ["Intencao", summary.intent_column || "inferida"],
+  ];
+  const warnings = Array.isArray(summary.warnings) ? summary.warnings : [];
+  csvSummary.hidden = false;
+  csvSummary.innerHTML = `
+    <strong>Validacao do CSV</strong>
+    <span>${escapeHtml(summary.valid_rows)} linhas validas de ${escapeHtml(summary.total_rows || summary.valid_rows)} analisadas. Separador: ${escapeHtml(summary.delimiter || ",")}</span>
+    <div class="csv-columns">${columns.map(([label, value]) => `<b>${escapeHtml(label)}:</b> ${escapeHtml(value || "-")}`).join(" | ")}</div>
+    ${warnings.length ? `<ul>${warnings.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+  `;
 }
 
 function isCancelable(status) {
@@ -101,7 +131,7 @@ function renderRows(rows) {
 
   if (!rows.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = '<td colspan="8" class="text-muted">Aguardando os primeiros registros processados.</td>';
+    tr.innerHTML = '<td colspan="9" class="text-muted">Aguardando os primeiros registros processados.</td>';
     resultBody.appendChild(tr);
     return;
   }
@@ -109,17 +139,72 @@ function renderRows(rows) {
   for (const row of rows) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${escapeHtml(row.source_id)}</td>
-      <td>${escapeHtml(row.text)}</td>
-      <td>${escapeHtml(row.intent || "-")}</td>
-      <td>${escapeHtml(formatSentiment(row.sentiment_score, row.ai_intent, row.ai_provider))}</td>
-      <td>${escapeHtml(row.target_candidate || "-")}</td>
-      <td>${escapeHtml(row.inferred_target || row.technical_target || "-")}</td>
-      <td>${escapeHtml(row.consequence || "-")}</td>
-      <td><strong>${escapeHtml(row.jira_key || row.jira_status || "-")}</strong></td>
+      <td class="cell-id">${escapeHtml(row.source_id)}</td>
+      <td class="cell-text">${escapeHtml(row.text)}</td>
+      <td class="cell-compact">${escapeHtml(row.intent || "-")}</td>
+      <td class="cell-sentiment">${escapeHtml(formatSentiment(row.sentiment_score, row.ai_intent, row.ai_provider))}</td>
+      <td class="cell-compact">${escapeHtml(row.target_candidate || "-")}</td>
+      <td class="cell-compact">${escapeHtml(row.inferred_target || row.technical_target || "-")}</td>
+      <td class="cell-compact">${escapeHtml(row.consequence || "-")}</td>
+      <td class="cell-jira"><strong>${escapeHtml(row.jira_key || row.jira_status || "-")}</strong></td>
+      <td class="cell-explanation">${renderExplanation(row.explanation)}</td>
     `;
     resultBody.appendChild(tr);
   }
+}
+
+function renderSteps(steps) {
+  if (!pipelineSteps) {
+    return;
+  }
+  pipelineSteps.innerHTML = "";
+  if (!steps.length) {
+    const item = document.createElement("li");
+    item.dataset.status = "pending";
+    item.innerHTML = "<strong>Upload recebido</strong><span>Aguardando arquivo.</span>";
+    pipelineSteps.appendChild(item);
+    return;
+  }
+
+  for (const step of steps) {
+    const item = document.createElement("li");
+    const total = Number(step.total || 0);
+    const processed = Number(step.processed || 0);
+    const progress = total ? ` ${processed}/${total}` : "";
+    const duration = step.duration_seconds ? ` | ${Number(step.duration_seconds).toFixed(1)}s` : "";
+    item.dataset.status = step.status || "pending";
+    item.innerHTML = `
+      <strong>${escapeHtml(step.label || step.key)}</strong>
+      <span>${escapeHtml(step.message || statusLabel(step.status))}${escapeHtml(progress)}${escapeHtml(duration)}</span>
+    `;
+    pipelineSteps.appendChild(item);
+  }
+}
+
+function renderExplanation(explanation) {
+  if (!explanation) {
+    return "-";
+  }
+  const details = Array.isArray(explanation.details) ? explanation.details : [];
+  const list = details.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  return `
+    <details class="explain-details">
+      <summary>${escapeHtml(explanation.summary || "Ver explicacao")}</summary>
+      <p>${escapeHtml(explanation.reason || "")}</p>
+      <ul>${list}</ul>
+    </details>
+  `;
+}
+
+function statusLabel(status) {
+  const labels = {
+    pending: "Pendente",
+    running: "Executando",
+    completed: "Concluido",
+    error: "Erro",
+    canceled: "Cancelado",
+  };
+  return labels[status] || "";
 }
 
 function poll(statusUrl) {
@@ -153,6 +238,33 @@ async function cancelActiveJob() {
     currentPhase.textContent = data.message || "Cancelamento solicitado.";
   } catch (error) {
     setFileFeedbackState("error", error.message);
+    showError(error);
+  }
+}
+
+async function deleteCompletedJob(button) {
+  const deleteUrl = button.dataset.deleteUrl;
+  const label = button.dataset.jobLabel || "este job";
+  if (!deleteUrl || !window.confirm(`Deletar ${label}? Esta acao remove os feedbacks e eventos analisados.`)) {
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Excluindo...";
+  try {
+    const response = await fetch(deleteUrl, {
+      method: "POST",
+      headers: {"X-CSRFToken": csrfToken()},
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Nao foi possivel deletar o job.");
+    }
+    button.closest(".recent-job-row")?.remove();
+    currentPhase.textContent = data.message || "Job deletado.";
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = "Excluir";
     showError(error);
   }
 }
@@ -239,6 +351,10 @@ dropzone.addEventListener("drop", (event) => {
 
 document.querySelectorAll(".recent-job").forEach((button) => {
   button.addEventListener("click", () => poll(button.dataset.statusUrl));
+});
+
+document.querySelectorAll(".delete-job").forEach((button) => {
+  button.addEventListener("click", () => deleteCompletedJob(button));
 });
 
 
