@@ -5,6 +5,7 @@ from threading import Thread
 from urllib.parse import urlencode
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import close_old_connections
 from django.db.models import Avg, Count, FloatField, Q, Value
@@ -29,8 +30,25 @@ POSITIVE_THRESHOLD = 0.05
 
 
 @require_GET
+def landing(request: HttpRequest):
+    if request.user.is_authenticated:
+        recent_jobs = ProcessingJob.objects.filter(owner=request.user)[:3]
+    else:
+        recent_jobs = []
+    return render(
+        request,
+        "pipeline/landing.html",
+        {
+            "recent_jobs": recent_jobs,
+            "active_nav": "home",
+        },
+    )
+
+
+@require_GET
+@login_required
 def index(request: HttpRequest):
-    jobs = ProcessingJob.objects.all()[:10]
+    jobs = _user_jobs(request)[:10]
     return render(
         request,
         "pipeline/index.html",
@@ -43,6 +61,7 @@ def index(request: HttpRequest):
 
 
 @require_POST
+@login_required
 def create_job(request: HttpRequest):
     upload = request.FILES.get("dataset")
     if upload is None:
@@ -58,7 +77,7 @@ def create_job(request: HttpRequest):
     if error:
         return JsonResponse({"error": error}, status=400)
 
-    job = ProcessingJob.objects.create(original_filename=upload.name, upload=upload, row_limit=row_limit)
+    job = ProcessingJob.objects.create(owner=request.user, original_filename=upload.name, upload=upload, row_limit=row_limit)
     try:
         if settings.CELERY_TASK_ALWAYS_EAGER:
             _start_local_background_job(job.id)
@@ -82,8 +101,9 @@ def create_job(request: HttpRequest):
 
 
 @require_POST
+@login_required
 def cancel_job(request: HttpRequest, job_id: int):
-    job = get_object_or_404(ProcessingJob, pk=job_id)
+    job = _get_user_job_or_404(request, job_id)
     if job.status in {ProcessingJob.Status.COMPLETED, ProcessingJob.Status.FAILED, ProcessingJob.Status.CANCELED}:
         return JsonResponse({"status": job.status, "message": "Este job ja foi finalizado."})
 
@@ -93,8 +113,9 @@ def cancel_job(request: HttpRequest, job_id: int):
 
 
 @require_POST
+@login_required
 def delete_job(request: HttpRequest, job_id: int):
-    job = get_object_or_404(ProcessingJob, pk=job_id)
+    job = _get_user_job_or_404(request, job_id)
     if job.status != ProcessingJob.Status.COMPLETED:
         return JsonResponse(
             {"error": "Apenas jobs concluidos podem ser deletados."},
@@ -109,10 +130,9 @@ def delete_job(request: HttpRequest, job_id: int):
 
 
 @require_POST
+@login_required
 def export_selected_to_jira(request: HttpRequest, job_id: int):
-    print("DEBUG BODY:", request.body)
-    print("DEBUG POST:", request.POST)
-    job = get_object_or_404(ProcessingJob, pk=job_id)
+    job = _get_user_job_or_404(request, job_id)
     jira_config = _jira_config_from_session(request)
     if jira_config is None:
         return JsonResponse(
@@ -193,6 +213,7 @@ def export_selected_to_jira(request: HttpRequest, job_id: int):
 
 
 @require_GET
+@login_required
 def jira_config_status(request: HttpRequest):
     config = _jira_config_from_session(request)
     if config is None:
@@ -221,6 +242,7 @@ def jira_config_status(request: HttpRequest):
 
 
 @require_POST
+@login_required
 def save_jira_config(request: HttpRequest):
     try:
         config = _jira_config_from_payload(request)
@@ -246,6 +268,7 @@ def save_jira_config(request: HttpRequest):
 
 
 @require_POST
+@login_required
 def test_jira_config(request: HttpRequest):
     config = None
     try:
@@ -266,8 +289,9 @@ def test_jira_config(request: HttpRequest):
 
 
 @require_GET
+@login_required
 def job_status(request: HttpRequest, job_id: int):
-    job = get_object_or_404(ProcessingJob, pk=job_id)
+    job = _get_user_job_or_404(request, job_id)
     events = list(job.events.values("level", "message", "created_at", "metadata"))
     feedbacks = list(
         FeedbackRecord.objects.filter(job=job).values(
@@ -312,8 +336,9 @@ def job_status(request: HttpRequest, job_id: int):
 
 @require_GET
 @ensure_csrf_cookie
+@login_required
 def dashboard(request: HttpRequest):
-    jobs = list(ProcessingJob.objects.all()[:50])
+    jobs = list(_user_jobs(request)[:50])
     selected_job = _resolve_selected_job(request, jobs=jobs)
     sentiment_filter, consequence_filter = _parse_filters(request)
     return render(
@@ -330,6 +355,7 @@ def dashboard(request: HttpRequest):
 
 
 @require_GET
+@login_required
 def dashboard_data(request: HttpRequest):
     selected_job = _resolve_selected_job(request)
     if selected_job is None:
@@ -354,8 +380,9 @@ def dashboard_data(request: HttpRequest):
 
 
 @require_GET
+@login_required
 def detailed_results(request: HttpRequest):
-    jobs = list(ProcessingJob.objects.all()[:50])
+    jobs = list(_user_jobs(request)[:50])
     selected_job = _resolve_selected_job(request, jobs=jobs)
     sentiment_filter, consequence_filter = _parse_filters(request)
 
@@ -384,6 +411,7 @@ def detailed_results(request: HttpRequest):
 
 
 @require_GET
+@login_required
 def export_csv(request: HttpRequest):
     job = _require_selected_job(request)
     sentiment_filter, consequence_filter = _parse_filters(request)
@@ -424,6 +452,7 @@ def export_csv(request: HttpRequest):
 
 
 @require_GET
+@login_required
 def export_docx(request: HttpRequest):
     job = _require_selected_job(request)
     sentiment_filter, consequence_filter = _parse_filters(request)
@@ -536,18 +565,26 @@ def _start_local_background_job(job_id: int) -> None:
     Thread(target=runner, daemon=True).start()
 
 
+def _user_jobs(request: HttpRequest):
+    return ProcessingJob.objects.filter(owner=request.user)
+
+
+def _get_user_job_or_404(request: HttpRequest, job_id: int) -> ProcessingJob:
+    return get_object_or_404(_user_jobs(request), pk=job_id)
+
+
 def _resolve_selected_job(request: HttpRequest, jobs: list[ProcessingJob] | None = None) -> ProcessingJob | None:
     selected_job_id = request.GET.get("job")
     if selected_job_id:
         try:
-            return ProcessingJob.objects.get(pk=int(selected_job_id))
+            return _user_jobs(request).get(pk=int(selected_job_id))
         except (ValueError, ProcessingJob.DoesNotExist):
             pass
 
     if jobs is not None:
         return jobs[0] if jobs else None
 
-    return ProcessingJob.objects.first()
+    return _user_jobs(request).first()
 
 
 def _require_selected_job(request: HttpRequest) -> ProcessingJob:

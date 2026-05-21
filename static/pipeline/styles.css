@@ -42,6 +42,16 @@ h4 {
   font-size: 1.25rem;
 }
 
+.sidebar-user {
+  max-width: 100%;
+  margin: .45rem 0 0;
+  color: #aac1d6;
+  font-size: .86rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .sidebar-nav {
   margin-top: 1.25rem;
   display: grid;
@@ -65,6 +75,241 @@ h4 {
   border-color: #3f678f;
   background: rgba(255, 255, 255, .12);
   color: #fff;
+}
+
+.sidebar-logout {
+  margin-top: 1rem;
+}
+
+.sidebar-logout button {
+  width: 100%;
+  border: 1px solid #294766;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .06);
+  color: var(--sidebar-text);
+  padding: .65rem .75rem;
+  text-align: left;
+}
+
+.sidebar-logout button:hover {
+  background: rgba(255, 255, 255, .12);
+  color: #fff;
+}
+
+.public-page,
+.auth-page {
+  background: #07131f;
+  color: #f7fafc;
+}
+
+.public-nav {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem clamp(1rem, 4vw, 3rem);
+}
+
+.public-brand {
+  display: grid;
+  gap: .1rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.public-brand span {
+  color: #5eead4;
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.public-brand strong {
+  font-size: 1rem;
+}
+
+.public-hero {
+  min-height: 92vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4rem);
+  padding: 6rem clamp(1rem, 4vw, 3rem) 4rem;
+  background:
+    linear-gradient(120deg, rgba(7, 19, 31, .94), rgba(12, 42, 56, .84)),
+    url("https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1800&q=80") center/cover;
+}
+
+.public-hero-content {
+  max-width: 760px;
+}
+
+.public-kicker {
+  color: #5eead4;
+  font-size: .86rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.public-hero h1 {
+  max-width: 820px;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2.25rem, 5vw, 4.8rem);
+  line-height: 1.02;
+}
+
+.public-hero p {
+  max-width: 660px;
+  margin: 1.1rem 0 0;
+  color: #d7e2eb;
+  font-size: 1.12rem;
+  line-height: 1.58;
+}
+
+.public-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 1.75rem;
+}
+
+.public-signal {
+  display: grid;
+  gap: .75rem;
+  align-self: end;
+  margin-bottom: 1.5rem;
+}
+
+.signal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgba(203, 213, 225, .24);
+  border-radius: 8px;
+  background: rgba(7, 19, 31, .68);
+  padding: .85rem 1rem;
+  backdrop-filter: blur(8px);
+}
+
+.signal-row span {
+  color: #9fb3c8;
+  font-size: .85rem;
+}
+
+.signal-row strong {
+  color: #fff;
+  text-align: right;
+}
+
+.public-section {
+  display: grid;
+  grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr);
+  gap: 2rem;
+  padding: 3rem clamp(1rem, 4vw, 3rem);
+  background: #f8fafc;
+  color: var(--ink);
+}
+
+.public-section-heading h2 {
+  margin: .2rem 0 0;
+  font-size: 1.8rem;
+}
+
+.public-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .85rem;
+}
+
+.public-feature-grid article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 1rem;
+}
+
+.public-feature-grid h3 {
+  margin: 0 0 .45rem;
+  font-size: 1rem;
+}
+
+.public-feature-grid p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.48;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background:
+    linear-gradient(135deg, rgba(7, 19, 31, .96), rgba(10, 60, 70, .9)),
+    url("https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80") center/cover;
+}
+
+.auth-panel {
+  width: min(460px, 100%);
+  border: 1px solid rgba(203, 213, 225, .26);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .96);
+  color: var(--ink);
+  padding: 1.4rem;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
+}
+
+.auth-back {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-panel h1 {
+  margin: .35rem 0 .5rem;
+  font-size: 1.8rem;
+}
+
+.auth-copy {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.google-login-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  border: 1px solid #c9d3df;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  padding: .85rem 1rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.google-login-button:hover {
+  border-color: var(--accent);
+  color: #0f5d52;
+}
+
+.google-mark {
+  display: inline-grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  border: 1px solid #d8dee4;
+  border-radius: 999px;
+  color: #4285f4;
+  font-weight: 900;
 }
 
 .app-main {
@@ -920,8 +1165,16 @@ h4 {
   .status-layout,
   .dashboard-filters,
   .metric-grid,
-  .charts-grid {
+  .charts-grid,
+  .public-hero,
+  .public-section,
+  .public-feature-grid {
     grid-template-columns: 1fr;
+  }
+
+  .public-hero {
+    min-height: auto;
+    padding-top: 7rem;
   }
 
   .jira-config-form {

@@ -5,7 +5,8 @@ from . import views
 app_name = "pipeline"
 
 urlpatterns = [
-    path("", views.index, name="index"),
+    path("", views.landing, name="landing"),
+    path("app/", views.index, name="index"),
     path("dashboard/", views.dashboard, name="dashboard"),
     path("dashboard/data/", views.dashboard_data, name="dashboard_data"),
     path("resultados/", views.detailed_results, name="detailed_results"),

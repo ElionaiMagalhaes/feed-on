@@ -11,9 +11,9 @@ class PipelineEventInline(admin.TabularInline):
 
 @admin.register(ProcessingJob)
 class ProcessingJobAdmin(admin.ModelAdmin):
-    list_display = ("id", "original_filename", "status", "total_rows", "processed_rows", "created_at")
-    list_filter = ("status", "created_at")
-    search_fields = ("original_filename",)
+    list_display = ("id", "owner", "original_filename", "status", "total_rows", "processed_rows", "created_at")
+    list_filter = ("status", "owner", "created_at")
+    search_fields = ("original_filename", "owner__email", "owner__username")
     readonly_fields = ("created_at", "updated_at", "started_at", "finished_at")
     inlines = [PipelineEventInline]
 

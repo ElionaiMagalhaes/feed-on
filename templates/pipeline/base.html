@@ -15,12 +15,19 @@
       <div class="sidebar-brand">
         <span class="eyebrow">FEED-ON</span>
         <h1>Painel</h1>
+        {% if request.user.is_authenticated %}
+          <p class="sidebar-user">{{ request.user.get_full_name|default:request.user.email|default:request.user.username }}</p>
+        {% endif %}
       </div>
       <nav class="sidebar-nav">
         <a href="{% url 'pipeline:index' %}" class="{% if active_nav == 'upload' %}is-active{% endif %}">Upload de Dataset</a>
         <a href="{% url 'pipeline:dashboard' %}" class="{% if active_nav == 'dashboard' %}is-active{% endif %}">Dashboard</a>
         <a href="{% url 'pipeline:detailed_results' %}" class="{% if active_nav == 'results' %}is-active{% endif %}">Resultados Detalhados</a>
       </nav>
+      <form class="sidebar-logout" action="{% url 'account_logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Sair</button>
+      </form>
     </aside>
 
     <main class="app-main">

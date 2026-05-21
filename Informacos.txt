@@ -29,3 +29,38 @@ powershell
 cd C:\dev\feed-on
 .\.venv\Scripts\Activate.ps1
 celery -A feed_on worker -l info -P solo
+
+
+
+Garanta que as migrations foram aplicadas:
+python manage.py migrate
+
+python manage.py createsuperuser
+elionai
+e-mail elionaimagalhaes84@gmail.com
+senha Luaclar@0****0
+
+
+
+
+Depois de entrar no admin, para configurar o login Google pelo banco:
+
+Vá em Sites.
+Edite o site example.com.
+Troque para:
+Domain name: 127.0.0.1:8000
+Display name: FEED-ON Local
+Vá em Social applications.
+Clique em Add social application.
+Configure:
+Provider: Google
+Name: Google
+Client id: seu GOOGLE_CLIENT_ID
+Secret key: seu GOOGLE_CLIENT_SECRET
+Sites: selecione 127.0.0.1:8000
+Para produção no Railway, use o domínio real no Sites, por exemplo:
+
+seu-app.up.railway.app
+E no Google Cloud Console cadastre o callback:
+
+https://seu-app.up.railway.app/accounts/google/login/callback/

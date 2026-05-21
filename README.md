@@ -22,6 +22,8 @@ Configure no Railway:
 ```env
 SECRET_KEY=gere-uma-chave-segura
 DEBUG=false
+GOOGLE_CLIENT_ID=client-id-do-google
+GOOGLE_CLIENT_SECRET=client-secret-do-google
 OPENAI_API_KEY=sua_chave_aqui
 JIRA_SERVER=https://your-domain.atlassian.net
 JIRA_EMAIL=you@example.com
@@ -46,6 +48,16 @@ celery -A feed_on worker -l info
 ```
 
 Sem esse worker, configure `CELERY_TASK_ALWAYS_EAGER=true` para executar as tarefas no proprio processo web.
+
+### Login com Google
+
+Crie uma credencial OAuth no Google Cloud Console para uma aplicacao web e adicione a URL de callback:
+
+```text
+https://seu-dominio.up.railway.app/accounts/google/login/callback/
+```
+
+Depois configure `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET` no Railway. O sistema usa a conta Google para separar jobs, uploads, dashboards e exportacoes por usuario.
 
 Para processamento assincrono, suba Redis e rode um worker:
 
