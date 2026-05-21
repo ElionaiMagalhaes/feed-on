@@ -1,0 +1,8 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "python manage.py collectstatic --noinput"
+
+[deploy]
+startCommand = "python manage.py migrate --noinput && gunicorn feed_on.wsgi:application --bind 0.0.0.0:${PORT:-8000}"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3

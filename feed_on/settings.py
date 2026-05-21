@@ -1,5 +1,6 @@
 ﻿from pathlib import Path
 import os
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -21,9 +22,22 @@ def env_list(name: str, default: str = "") -> list[str]:
 
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
-DEBUG = env_bool("DEBUG", True)
-ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "127.0.0.1,localhost")
-CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
+IS_RAILWAY = bool(os.getenv("RAILWAY_ENVIRONMENT") or os.getenv("RAILWAY_PUBLIC_DOMAIN"))
+DEBUG = env_bool("DEBUG", not IS_RAILWAY)
+
+railway_domain = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip()
+default_allowed_hosts = "127.0.0.1,localhost"
+if railway_domain:
+    default_allowed_hosts = f"{default_allowed_hosts},{railway_domain}"
+ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", default_allowed_hosts)
+
+default_csrf_origins = f"https://{railway_domain}" if railway_domain else ""
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS", default_csrf_origins)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", IS_RAILWAY)
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", IS_RAILWAY)
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", IS_RAILWAY)
+SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "31536000" if IS_RAILWAY else "0"))
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -37,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -65,8 +80,54 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "feed_on.wsgi.application"
 
+
+def mysql_database_config(
+    name: str,
+    user: str,
+    password: str,
+    host: str,
+    port: str,
+) -> dict[str, object]:
+    return {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": name,
+        "USER": user,
+        "PASSWORD": password,
+        "HOST": host,
+        "PORT": port,
+        "OPTIONS": {
+            "charset": "utf8mb4",
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+    }
+
+
+def mysql_url_config(url: str) -> dict[str, object]:
+    parsed = urlparse(url)
+    return mysql_database_config(
+        name=parsed.path.lstrip("/") or "feed_on",
+        user=parsed.username or "",
+        password=parsed.password or "",
+        host=parsed.hostname or "127.0.0.1",
+        port=str(parsed.port or 3306),
+    )
+
+
 db_engine = os.getenv("DB_ENGINE", "mysql").strip().lower()
-if db_engine == "sqlite":
+mysql_url = os.getenv("MYSQL_URL") or os.getenv("DATABASE_URL", "")
+if mysql_url.startswith(("mysql://", "mysql2://")):
+    DATABASES = {"default": mysql_url_config(mysql_url)}
+elif os.getenv("MYSQLHOST"):
+    DATABASES = {
+        "default": mysql_database_config(
+            name=os.getenv("MYSQLDATABASE", "feed_on"),
+            user=os.getenv("MYSQLUSER", "feed_on"),
+            password=os.getenv("MYSQLPASSWORD", ""),
+            host=os.getenv("MYSQLHOST", "127.0.0.1"),
+            port=os.getenv("MYSQLPORT", "3306"),
+        )
+    }
+elif db_engine == "sqlite":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -75,18 +136,13 @@ if db_engine == "sqlite":
     }
 else:
     DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": os.getenv("DB_NAME", "feed_on"),
-            "USER": os.getenv("DB_USER", "feed_on"),
-            "PASSWORD": os.getenv("DB_PASSWORD", ""),
-            "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-            "PORT": os.getenv("DB_PORT", "3306"),
-            "OPTIONS": {
-                "charset": "utf8mb4",
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
+        "default": mysql_database_config(
+            name=os.getenv("DB_NAME", "feed_on"),
+            user=os.getenv("DB_USER", "feed_on"),
+            password=os.getenv("DB_PASSWORD", ""),
+            host=os.getenv("DB_HOST", "127.0.0.1"),
+            port=os.getenv("DB_PORT", "3306"),
+        )
     }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -104,12 +160,24 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379/1")
+redis_url = os.getenv("REDIS_URL")
+CELERY_BROKER_URL = os.getenv(
+    "CELERY_BROKER_URL",
+    redis_url or "redis://127.0.0.1:6379/0",
+)
+CELERY_RESULT_BACKEND = os.getenv(
+    "CELERY_RESULT_BACKEND",
+    redis_url or "redis://127.0.0.1:6379/1",
+)
 CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", False)
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = int(os.getenv("CELERY_TASK_TIME_LIMIT", "7200"))

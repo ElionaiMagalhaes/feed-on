@@ -13,6 +13,40 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+## Deploy no Railway
+
+O projeto inclui `railway.toml` para o Railway instalar as dependencias com Nixpacks, executar `collectstatic`, aplicar migrations e iniciar o Django com Gunicorn usando a porta injetada em `PORT`.
+
+Configure no Railway:
+
+```env
+SECRET_KEY=gere-uma-chave-segura
+DEBUG=false
+OPENAI_API_KEY=sua_chave_aqui
+JIRA_SERVER=https://your-domain.atlassian.net
+JIRA_EMAIL=you@example.com
+JIRA_API_TOKEN=...
+JIRA_PROJECT_KEY=FEED
+JIRA_DRY_RUN=true
+```
+
+Se usar o plugin MySQL do Railway, o Django le automaticamente `MYSQL_URL` ou as variaveis `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD` e `MYSQLDATABASE`. Se usar Redis no Railway, `REDIS_URL` tambem e reconhecida automaticamente para Celery.
+
+`RAILWAY_PUBLIC_DOMAIN` e usado para preencher `ALLOWED_HOSTS` e `CSRF_TRUSTED_ORIGINS` automaticamente. Se preferir configurar manualmente, use:
+
+```env
+ALLOWED_HOSTS=seu-dominio.up.railway.app
+CSRF_TRUSTED_ORIGINS=https://seu-dominio.up.railway.app
+```
+
+Para processamento assincrono real, crie um segundo servico no Railway apontando para o mesmo repositorio com o start command:
+
+```bash
+celery -A feed_on worker -l info
+```
+
+Sem esse worker, configure `CELERY_TASK_ALWAYS_EAGER=true` para executar as tarefas no proprio processo web.
+
 Para processamento assincrono, suba Redis e rode um worker:
 
 ```powershell
