@@ -170,15 +170,21 @@ def export_selected_to_jira(request: HttpRequest, job_id: int):
             target_class = _target_class_for_jira(record)
             severity = "Correction" if record.consequence == "Correction" else "Improvement"
             jira_key = criar_ticket_jira(record.text, target_class, severity, config=jira_config)
+            jira_status = (
+                FeedbackRecord.JiraStatus.DRY_RUN
+                if settings.JIRA_DRY_RUN or str(jira_key).startswith("DRY-RUN-")
+                else FeedbackRecord.JiraStatus.CREATED
+            )
             ontology_source_id = _ontology_source_id_for_record(record)
             atualizar_jira_key_na_ontologia(ontology_source_id, record.consequence, jira_key)
 
             record.jira_key = jira_key
-            record.jira_status = FeedbackRecord.JiraStatus.CREATED
+            record.jira_status = jira_status
             record.processing_error = ""
             record.jira_payload = {
                 **(record.jira_payload or {}),
                 "manual_export": True,
+                "dry_run": jira_status == FeedbackRecord.JiraStatus.DRY_RUN,
                 "ontology_source_id": ontology_source_id,
                 "target_class": target_class,
             }

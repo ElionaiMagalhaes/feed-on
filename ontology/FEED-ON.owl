@@ -30243,7 +30243,7 @@
 <owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16">
   <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
   <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Tela"/>
-  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">FEED-12</seon:jiraKey>
 </owl:NamedIndividual>
 
 <owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16">

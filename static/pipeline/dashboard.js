@@ -343,7 +343,15 @@ if (root) {
         );
       } else {
         const count = data.exported?.length || 0;
-        setExportStatus("success", `Sucesso! ${count} feedback${count === 1 ? "" : "s"} foram exportados e transformados em tarefas no Jira.`);
+        const dryRunCount = (data.exported || []).filter((row) => row.jira_status === "dry_run" || String(row.jira_key || "").startsWith("DRY-RUN-")).length;
+        if (dryRunCount) {
+          setExportStatus(
+            "success",
+            `${dryRunCount} feedback${dryRunCount === 1 ? "" : "s"} simulado${dryRunCount === 1 ? "" : "s"} em dry-run. Nenhuma tarefa foi criada no Jira; configure JIRA_DRY_RUN=false em producao.`,
+          );
+        } else {
+          setExportStatus("success", `Sucesso! ${count} feedback${count === 1 ? "" : "s"} foram exportados e transformados em tarefas no Jira.`);
+        }
       }
       await safeRefresh();
     } catch (error) {
