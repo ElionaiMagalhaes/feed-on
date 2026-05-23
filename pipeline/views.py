@@ -66,7 +66,7 @@ def create_job(request: HttpRequest):
     upload = request.FILES.get("dataset")
     if upload is None:
         return JsonResponse({"error": "Envie um arquivo CSV."}, status=400)
-    if not upload.name.lower().endswith(".csv"):
+    if not _looks_like_csv_upload(upload):
         return JsonResponse({"error": "O arquivo precisa estar no formato CSV."}, status=400)
 
     max_size = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
@@ -542,6 +542,45 @@ def _parse_row_limit(raw_value: str) -> tuple[int | None, str]:
     if value <= 0:
         return None, "O limite precisa ser maior que zero."
     return value, ""
+
+
+def _looks_like_csv_upload(upload) -> bool:
+    filename = (upload.name or "").strip().lower()
+    content_type = (getattr(upload, "content_type", "") or "").split(";", 1)[0].strip().lower()
+    allowed_content_types = {
+        "text/csv",
+        "application/csv",
+        "text/comma-separated-values",
+        "application/vnd.ms-excel",
+    }
+    if filename.endswith(".csv") or content_type in allowed_content_types:
+        return True
+
+    try:
+        sample = upload.read(4096)
+        upload.seek(0)
+    except Exception:
+        return False
+
+    if not sample:
+        return False
+
+    for encoding in ("utf-8-sig", "utf-8", "latin-1"):
+        try:
+            text = sample.decode(encoding)
+            break
+        except UnicodeDecodeError:
+            text = ""
+    if not text.strip():
+        return False
+
+    try:
+        dialect = csv.Sniffer().sniff(text, delimiters=",;\t|")
+    except csv.Error:
+        return False
+
+    first_line = text.splitlines()[0] if text.splitlines() else ""
+    return dialect.delimiter in first_line
 
 
 def _job_urls(request: HttpRequest, job: ProcessingJob) -> dict:

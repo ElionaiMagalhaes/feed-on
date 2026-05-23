@@ -29807,6 +29807,706 @@
   <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.5</seon:sentimentScore>
 </owl:NamedIndividual>
 
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_9ca6a1ed_bf87_46ca_8f01_6ae658a667d7__job17__row1">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Tela"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_9ca6a1ed_bf87_46ca_8f01_6ae658a667d7__job17__row1"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_9ca6a1ed_bf87_46ca_8f01_6ae658a667d7__job17__row1"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_9ca6a1ed_bf87_46ca_8f01_6ae658a667d7__job17__row1"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 9ca6a1ed-bf87-46ca-8f01-6ae658a667d7__job17__row1</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O botão de confirmar o horário da consulta simplesmente não funciona na tela do celular.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_9ca6a1ed_bf87_46ca_8f01_6ae658a667d7__job17__row1">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Tela"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_9ca6a1ed_bf87_46ca_8f01_6ae658a667d7__job17__row1">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_9ca6a1ed_bf87_46ca_8f01_6ae658a667d7__job17__row1">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.8</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_24ef7f65_27e8_48e0_8f0a_05c4e2415311__job17__row2">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Requirement_Preco"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_24ef7f65_27e8_48e0_8f0a_05c4e2415311__job17__row2"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_24ef7f65_27e8_48e0_8f0a_05c4e2415311__job17__row2"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_24ef7f65_27e8_48e0_8f0a_05c4e2415311__job17__row2"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 24ef7f65-27e8-48e0-8f0a-05c4e2415311__job17__row2</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O preço da consulta particular está muito alto e o app não mostra as regras de reembolso do plano.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_24ef7f65_27e8_48e0_8f0a_05c4e2415311__job17__row2">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Requirement_Preco"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_24ef7f65_27e8_48e0_8f0a_05c4e2415311__job17__row2">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_24ef7f65_27e8_48e0_8f0a_05c4e2415311__job17__row2">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.5</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_a978f8e7_b6e2_445d_9b7d_f4b1d3197176__job17__row3">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Lento"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_a978f8e7_b6e2_445d_9b7d_f4b1d3197176__job17__row3"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_a978f8e7_b6e2_445d_9b7d_f4b1d3197176__job17__row3"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_a978f8e7_b6e2_445d_9b7d_f4b1d3197176__job17__row3"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback a978f8e7-b6e2-445d-9b7d-f4b1d3197176__job17__row3</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O aplicativo está muito lento para carregar a lista de médicos especialistas disponíveis na minha região.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_a978f8e7_b6e2_445d_9b7d_f4b1d3197176__job17__row3">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Lento"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_a978f8e7_b6e2_445d_9b7d_f4b1d3197176__job17__row3">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_a978f8e7_b6e2_445d_9b7d_f4b1d3197176__job17__row3">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.7</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_b5595c27_79e9_426c_a7ba_ed89004ff3ac__job17__row4">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Interface"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement_b5595c27_79e9_426c_a7ba_ed89004ff3ac__job17__row4"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_b5595c27_79e9_426c_a7ba_ed89004ff3ac__job17__row4"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_b5595c27_79e9_426c_a7ba_ed89004ff3ac__job17__row4"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback b5595c27-79e9-426c-a7ba-ed89004ff3ac__job17__row4</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Excelente! Consegui agendar minha consulta com o cardiologista em menos de dois minutos, interface ótima.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Improvement_b5595c27_79e9_426c_a7ba_ed89004ff3ac__job17__row4">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Interface"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_b5595c27_79e9_426c_a7ba_ed89004ff3ac__job17__row4">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_b5595c27_79e9_426c_a7ba_ed89004ff3ac__job17__row4">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.9</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_b9a1683b_6be3_4029_b46c_ce0e2453302b__job17__row5">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Process_Atendimento"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_b9a1683b_6be3_4029_b46c_ce0e2453302b__job17__row5"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_b9a1683b_6be3_4029_b46c_ce0e2453302b__job17__row5"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_b9a1683b_6be3_4029_b46c_ce0e2453302b__job17__row5"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback b9a1683b-6be3-4029-b46c-ce0e2453302b__job17__row5</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tentei entrar em contato com o suporte para reagendar meu exame e o chat de atendimento não abre.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_b9a1683b_6be3_4029_b46c_ce0e2453302b__job17__row5">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Process_Atendimento"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_b9a1683b_6be3_4029_b46c_ce0e2453302b__job17__row5">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_b9a1683b_6be3_4029_b46c_ce0e2453302b__job17__row5">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.9</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_d14c6959_9ebd_4af6_8276_5924b6034581__job17__row6">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Crash"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_d14c6959_9ebd_4af6_8276_5924b6034581__job17__row6"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_d14c6959_9ebd_4af6_8276_5924b6034581__job17__row6"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_d14c6959_9ebd_4af6_8276_5924b6034581__job17__row6"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback d14c6959-9ebd-4af6-8276-5924b6034581__job17__row6</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O aplicativo sofreu um crash e fechou sozinho bem na hora de processar o pagamento da teleconsulta.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_d14c6959_9ebd_4af6_8276_5924b6034581__job17__row6">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Crash"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_d14c6959_9ebd_4af6_8276_5924b6034581__job17__row6">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_d14c6959_9ebd_4af6_8276_5924b6034581__job17__row6">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-1.0</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_58644c28_8f3e_414f_bd6b_5f9b63b17d12__job17__row7">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Interface"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_58644c28_8f3e_414f_bd6b_5f9b63b17d12__job17__row7"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_58644c28_8f3e_414f_bd6b_5f9b63b17d12__job17__row7"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_58644c28_8f3e_414f_bd6b_5f9b63b17d12__job17__row7"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 58644c28-8f3e-414f-bd6b-5f9b63b17d12__job17__row7</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A interface gráfica na tela de histórico de receitas médicas ficou confusa e o ícone de download sumiu.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_58644c28_8f3e_414f_bd6b_5f9b63b17d12__job17__row7">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Interface"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_58644c28_8f3e_414f_bd6b_5f9b63b17d12__job17__row7">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_58644c28_8f3e_414f_bd6b_5f9b63b17d12__job17__row7">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.6</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_4cffc7bf_d5a1_4db0_8765_cdc261fc3f15__job17__row8">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Feature_General"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_4cffc7bf_d5a1_4db0_8765_cdc261fc3f15__job17__row8"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_4cffc7bf_d5a1_4db0_8765_cdc261fc3f15__job17__row8"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_4cffc7bf_d5a1_4db0_8765_cdc261fc3f15__job17__row8"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 4cffc7bf-d5a1-4db0-8765-cdc261fc3f15__job17__row8</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Diz que minha conta está inválida, mas o plano de saúde já autorizou o token de validação.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_4cffc7bf_d5a1_4db0_8765_cdc261fc3f15__job17__row8">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Feature_General"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_4cffc7bf_d5a1_4db0_8765_cdc261fc3f15__job17__row8">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_4cffc7bf_d5a1_4db0_8765_cdc261fc3f15__job17__row8">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.8</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_c8371db2_2484_4bcc_8d87_09dbf5d98041__job17__row9">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Botao"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_c8371db2_2484_4bcc_8d87_09dbf5d98041__job17__row9"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_c8371db2_2484_4bcc_8d87_09dbf5d98041__job17__row9"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_c8371db2_2484_4bcc_8d87_09dbf5d98041__job17__row9"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback c8371db2-2484-4bcc-8d87-09dbf5d98041__job17__row9</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Quero alterar os dados do meu perfil de dependente, mas o botão de salvar sumiu após a atualização.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_c8371db2_2484_4bcc_8d87_09dbf5d98041__job17__row9">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Botao"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_c8371db2_2484_4bcc_8d87_09dbf5d98041__job17__row9">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_c8371db2_2484_4bcc_8d87_09dbf5d98041__job17__row9">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.6</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_94a6ceed_66dd_4d71_903a_a0b6482ed7a2__job17__row10">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Requirement_Login"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_94a6ceed_66dd_4d71_903a_a0b6482ed7a2__job17__row10"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_94a6ceed_66dd_4d71_903a_a0b6482ed7a2__job17__row10"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_94a6ceed_66dd_4d71_903a_a0b6482ed7a2__job17__row10"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 94a6ceed-66dd-4d71-903a-a0b6482ed7a2__job17__row10</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O sistema de autenticação não aceita minha senha de login e o link de ajuda técnica dá erro.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_94a6ceed_66dd_4d71_903a_a0b6482ed7a2__job17__row10">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Requirement_Login"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_94a6ceed_66dd_4d71_903a_a0b6482ed7a2__job17__row10">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_94a6ceed_66dd_4d71_903a_a0b6482ed7a2__job17__row10">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.9</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_cdf3cd81_a235_4664_8cb4_55b3903af83e__job17__row11">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Interface"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement_cdf3cd81_a235_4664_8cb4_55b3903af83e__job17__row11"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_cdf3cd81_a235_4664_8cb4_55b3903af83e__job17__row11"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_cdf3cd81_a235_4664_8cb4_55b3903af83e__job17__row11"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback cdf3cd81-a235-4664-8cb4-55b3903af83e__job17__row11</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Muito bom o sistema! Interface simples que facilita muito gerenciar as consultas da minha família.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Improvement_cdf3cd81_a235_4664_8cb4_55b3903af83e__job17__row11">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Interface"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_cdf3cd81_a235_4664_8cb4_55b3903af83e__job17__row11">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_cdf3cd81_a235_4664_8cb4_55b3903af83e__job17__row11">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.8</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_b238a103_f811_457a_a5c3_360c5fefa866__job17__row12">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Travando"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_b238a103_f811_457a_a5c3_360c5fefa866__job17__row12"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_b238a103_f811_457a_a5c3_360c5fefa866__job17__row12"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_b238a103_f811_457a_a5c3_360c5fefa866__job17__row12"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback b238a103-f811-457a-a5c3-360c5fefa866__job17__row12</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O carregamento do mapa de clínicas parceiras está extremamente lento e travando todo o navegador.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_b238a103_f811_457a_a5c3_360c5fefa866__job17__row12">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Travando"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_b238a103_f811_457a_a5c3_360c5fefa866__job17__row12">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_b238a103_f811_457a_a5c3_360c5fefa866__job17__row12">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.7</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_d0e19a63_8df8_4632_91f7_212c1e9b5923__job17__row13">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Process_Atendimento"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_d0e19a63_8df8_4632_91f7_212c1e9b5923__job17__row13"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_d0e19a63_8df8_4632_91f7_212c1e9b5923__job17__row13"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_d0e19a63_8df8_4632_91f7_212c1e9b5923__job17__row13"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback d0e19a63-8df8-4632-91f7-212c1e9b5923__job17__row13</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Não encontrei nenhuma opção de atendimento ou suporte dentro do menu principal do aplicativo.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_d0e19a63_8df8_4632_91f7_212c1e9b5923__job17__row13">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Process_Atendimento"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_d0e19a63_8df8_4632_91f7_212c1e9b5923__job17__row13">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_d0e19a63_8df8_4632_91f7_212c1e9b5923__job17__row13">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.5</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_a95d789b_5d58_485e_a54e_9b2ce15550b4__job17__row14">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Process_Suporte"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_a95d789b_5d58_485e_a54e_9b2ce15550b4__job17__row14"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_a95d789b_5d58_485e_a54e_9b2ce15550b4__job17__row14"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_a95d789b_5d58_485e_a54e_9b2ce15550b4__job17__row14"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback a95d789b-5d58-485e-a54e-9b2ce15550b4__job17__row14</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O valor do convênio veio cobrado errado na fatura da conta. Onde posso falar com o suporte?</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_a95d789b_5d58_485e_a54e_9b2ce15550b4__job17__row14">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Process_Suporte"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_a95d789b_5d58_485e_a54e_9b2ce15550b4__job17__row14">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_a95d789b_5d58_485e_a54e_9b2ce15550b4__job17__row14">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.6</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_9f427557_23fd_479d_b342_6c22353e6ab5__job17__row15">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Travando"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_9f427557_23fd_479d_b342_6c22353e6ab5__job17__row15"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_9f427557_23fd_479d_b342_6c22353e6ab5__job17__row15"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_9f427557_23fd_479d_b342_6c22353e6ab5__job17__row15"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 9f427557-23fd-479d-b342-6c22353e6ab5__job17__row15</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">As telas do aplicativo de telemedicina são bonitas, mas o player de vídeo da consulta fica travando.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_9f427557_23fd_479d_b342_6c22353e6ab5__job17__row15">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Travando"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_9f427557_23fd_479d_b342_6c22353e6ab5__job17__row15">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_9f427557_23fd_479d_b342_6c22353e6ab5__job17__row15">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.7</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Tela"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 56583c18-9e83-43f6-84c8-697f6a257162__job17__row16</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Não consigo fazer login de jeito nenhum, a tela fica preta carregando infinitamente.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Tela"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_56583c18_9e83_43f6_84c8_697f6a257162__job17__row16">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-1.0</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_b8dbfb81_d954_40dc_a604_69fe3ae631e4__job17__row17">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Feature_General"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement_b8dbfb81_d954_40dc_a604_69fe3ae631e4__job17__row17"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_b8dbfb81_d954_40dc_a604_69fe3ae631e4__job17__row17"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_b8dbfb81_d954_40dc_a604_69fe3ae631e4__job17__row17"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback b8dbfb81-d954-40dc-a604-69fe3ae631e4__job17__row17</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Gostei muito da clareza nas regras de cancelamento de consultas, evita mal-entendidos.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Improvement_b8dbfb81_d954_40dc_a604_69fe3ae631e4__job17__row17">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Feature_General"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_b8dbfb81_d954_40dc_a604_69fe3ae631e4__job17__row17">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_b8dbfb81_d954_40dc_a604_69fe3ae631e4__job17__row17">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.7</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_7eb8b91a_0ed4_4fc0_b3d7_8b00ce3e2426__job17__row18">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Interface"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_7eb8b91a_0ed4_4fc0_b3d7_8b00ce3e2426__job17__row18"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_7eb8b91a_0ed4_4fc0_b3d7_8b00ce3e2426__job17__row18"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_7eb8b91a_0ed4_4fc0_b3d7_8b00ce3e2426__job17__row18"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 7eb8b91a-0ed4-4fc0-b3d7-8b00ce3e2426__job17__row18</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O botão de anexar exames médicos sumiu da interface após atualizar o aplicativo de saúde.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_7eb8b91a_0ed4_4fc0_b3d7_8b00ce3e2426__job17__row18">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Interface"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_7eb8b91a_0ed4_4fc0_b3d7_8b00ce3e2426__job17__row18">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_7eb8b91a_0ed4_4fc0_b3d7_8b00ce3e2426__job17__row18">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.8</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_1648627a_af84_47ae_98bf_c15c2099c5fb__job17__row19">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Usabilidade"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement_1648627a_af84_47ae_98bf_c15c2099c5fb__job17__row19"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_1648627a_af84_47ae_98bf_c15c2099c5fb__job17__row19"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_1648627a_af84_47ae_98bf_c15c2099c5fb__job17__row19"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 1648627a-af84-47ae-98bf-c15c2099c5fb__job17__row19</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Parabéns aos desenvolvedores! O fluxo de agendamento e a usabilidade do menu ficaram excelentes.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Improvement_1648627a_af84_47ae_98bf_c15c2099c5fb__job17__row19">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Usabilidade"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_1648627a_af84_47ae_98bf_c15c2099c5fb__job17__row19">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_1648627a_af84_47ae_98bf_c15c2099c5fb__job17__row19">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.9</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_705049fd_abe3_46f4_aeb0_c571368bb67e__job17__row20">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Feature_General"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_705049fd_abe3_46f4_aeb0_c571368bb67e__job17__row20"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_705049fd_abe3_46f4_aeb0_c571368bb67e__job17__row20"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_705049fd_abe3_46f4_aeb0_c571368bb67e__job17__row20"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 705049fd-abe3-46f4-aeb0-c571368bb67e__job17__row20</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">A sincronização dos horários disponíveis entre a clínica e o app está muito lenta, agendei um horário que já estava ocupado.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_705049fd_abe3_46f4_aeb0_c571368bb67e__job17__row20">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Feature_General"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_705049fd_abe3_46f4_aeb0_c571368bb67e__job17__row20">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_705049fd_abe3_46f4_aeb0_c571368bb67e__job17__row20">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.7</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job17__row21">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Crash"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job17__row21"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job17__row21"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job17__row21"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback a8cdb9b4-e685-4b2d-8b92-8fdf0af944a9__job17__row21</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O aplicativo fecha (crash) toda vez que tento abrir o help centre para falar com a ouvidoria.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job17__row21">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/QualityAttribute_Crash"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job17__row21">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_a8cdb9b4_e685_4b2d_8b92_8fdf0af944a9__job17__row21">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-1.0</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_c4318382_15f7_4638_b274_8dcaaad024f9__job17__row22">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Requirement_Perfil"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement_c4318382_15f7_4638_b274_8dcaaad024f9__job17__row22"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_c4318382_15f7_4638_b274_8dcaaad024f9__job17__row22"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_c4318382_15f7_4638_b274_8dcaaad024f9__job17__row22"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback c4318382-15f7-4638-b274-8dcaaad024f9__job17__row22</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Sinto falta de uma aba de perfil que salve minhas alergias e medicamentos de uso contínuo de forma clara.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Improvement_c4318382_15f7_4638_b274_8dcaaad024f9__job17__row22">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Improvement"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Requirement_Perfil"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_c4318382_15f7_4638_b274_8dcaaad024f9__job17__row22">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_c4318382_15f7_4638_b274_8dcaaad024f9__job17__row22">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.4</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_fdeb37e0_c9c6_4e27_bd56_f0d5dec9c64d__job17__row23">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Requirement_Preco"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_fdeb37e0_c9c6_4e27_bd56_f0d5dec9c64d__job17__row23"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_fdeb37e0_c9c6_4e27_bd56_f0d5dec9c64d__job17__row23"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_fdeb37e0_c9c6_4e27_bd56_f0d5dec9c64d__job17__row23"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback fdeb37e0-c9c6-4e27-bd56-f0d5dec9c64d__job17__row23</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O preço do plano de assinatura para consultas ilimitadas não condiz com a instabilidade do sistema.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_fdeb37e0_c9c6_4e27_bd56_f0d5dec9c64d__job17__row23">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Requirement_Preco"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_fdeb37e0_c9c6_4e27_bd56_f0d5dec9c64d__job17__row23">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_fdeb37e0_c9c6_4e27_bd56_f0d5dec9c64d__job17__row23">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.6</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_0ab50637_a536_4ad1_97f7_dda32b56302e__job17__row24">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_BugReport"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/Process_Suporte"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_0ab50637_a536_4ad1_97f7_dda32b56302e__job17__row24"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_0ab50637_a536_4ad1_97f7_dda32b56302e__job17__row24"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_0ab50637_a536_4ad1_97f7_dda32b56302e__job17__row24"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback 0ab50637-a536-4ad1-97f7-dda32b56302e__job17__row24</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Tentei contato telefônico com o suporte da plataforma médica e a linha dá erro direto.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_0ab50637_a536_4ad1_97f7_dda32b56302e__job17__row24">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/Process_Suporte"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_0ab50637_a536_4ad1_97f7_dda32b56302e__job17__row24">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_0ab50637_a536_4ad1_97f7_dda32b56302e__job17__row24">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.8</seon:sentimentScore>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:Feedback_d60aff5a_6524_47d3_8bc6_ddafd2049a13__job17__row25">
+  <rdf:type rdf:resource="FEED-ON::Feedback"/>
+  <seon:hasIntention rdf:resource="http://dev.nemo.inf.ufes.br/seon/Intention_Suggestion"/>
+  <seon:refersTo rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Tela"/>
+  <seon:indicates rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction_d60aff5a_6524_47d3_8bc6_ddafd2049a13__job17__row25"/>
+  <seon:isElicitedThrough rdf:resource="http://dev.nemo.inf.ufes.br/seon/ExplicitFeedbackElicitation"/>
+  <seon:isProvidedBy rdf:resource="FEED-ON:ExternalAgent_d60aff5a_6524_47d3_8bc6_ddafd2049a13__job17__row25"/>
+  <seon:hasSentiment rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment_d60aff5a_6524_47d3_8bc6_ddafd2049a13__job17__row25"/>
+  <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Feedback d60aff5a-6524-47d3-8bc6-ddafd2049a13__job17__row25</rdfs:label>
+  <seon:commentText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">O design visual é bom, mas o botão de confirmar o cancelamento de consultas não dá feedback na tela.</seon:commentText>
+  <seon:isProcessed rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</seon:isProcessed>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Correction_d60aff5a_6524_47d3_8bc6_ddafd2049a13__job17__row25">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Correction"/>
+  <seon:aimsToEvolve rdf:resource="http://dev.nemo.inf.ufes.br/seon/UIElement_Tela"/>
+  <seon:jiraKey rdf:datatype="http://www.w3.org/2001/XMLSchema#string">PENDING</seon:jiraKey>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="FEED-ON:ExternalAgent_d60aff5a_6524_47d3_8bc6_ddafd2049a13__job17__row25">
+  <rdf:type rdf:resource="FEED-ON::ExternalAgent"/>
+</owl:NamedIndividual>
+
+<owl:NamedIndividual rdf:about="http://dev.nemo.inf.ufes.br/seon/Sentiment_d60aff5a_6524_47d3_8bc6_ddafd2049a13__job17__row25">
+  <rdf:type rdf:resource="http://dev.nemo.inf.ufes.br/seon/Sentiment"/>
+  <seon:sentimentScore rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">-0.5</seon:sentimentScore>
+</owl:NamedIndividual>
+
 <owl:AllDisjointClasses>
   <owl:members rdf:parseType="Collection">
     <rdf:Description rdf:about="FEED-ON::ConsequenceExpected"/>

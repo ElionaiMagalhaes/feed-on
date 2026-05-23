@@ -16,7 +16,7 @@
     <div class="upload-surface" id="dropzone">
       <form id="upload-form" action="{% url 'pipeline:create_job' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input class="visually-hidden" id="dataset" name="dataset" type="file" accept=".csv">
+        <input class="visually-hidden" id="dataset" name="dataset" type="file" accept=".csv,text/csv,application/csv,text/plain,application/vnd.ms-excel">
         <label for="dataset" class="upload-label">
           <span class="upload-title">Solte o CSV aqui ou clique para selecionar</span>
           <span class="upload-subtitle" id="selected-file">Limite atual: {{ max_upload_size_mb }} MB</span>
