@@ -7,7 +7,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import close_old_connections
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count, FloatField, Q, Value
+from django.db.models.functions import Coalesce
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
