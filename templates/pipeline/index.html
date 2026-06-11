@@ -7,8 +7,7 @@
   <section class="top-band">
     <div class="container py-5">
       <p class="eyebrow">FEED-ON</p>
-      <h2 class="display-6 fw-semibold">Feedbacks de usuarios em tarefas rastreaveis no Jira</h2>
-      <p class="lead mb-0">Envie um CSV ou Excel, acompanhe o pipeline sem bloquear a tela e revise alvo inferido, consequencia e chave Jira.</p>
+      <h2 class="display-6 fw-semibold">Feedbacks de usuarios</h2>
     </div>
   </section>
 
@@ -19,7 +18,6 @@
         <input class="visually-hidden" id="dataset" name="dataset" type="file" accept=".csv,.xlsx,.xlsm,text/csv,application/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12">
         <label for="dataset" class="upload-label">
           <span class="upload-title">Solte o CSV ou Excel aqui ou clique para selecionar</span>
-          <span class="upload-subtitle" id="selected-file">Limite atual: {{ max_upload_size_mb }} MB</span>
         </label>
         <button class="btn btn-outline-primary upload-select-button mt-3" id="select-file-button" type="button">Selecionar arquivo</button>
         <div class="file-feedback" id="file-feedback" aria-live="polite" hidden>
