@@ -207,7 +207,6 @@ def export_selected_to_jira(request: HttpRequest, job_id: int):
                 else FeedbackRecord.JiraStatus.CREATED
             )
             ontology_source_id = _ontology_source_id_for_record(record)
-            atualizar_jira_key_na_ontologia(ontology_source_id, record.consequence, jira_key)
 
             record.jira_key = jira_key
             record.jira_status = jira_status
@@ -219,6 +218,9 @@ def export_selected_to_jira(request: HttpRequest, job_id: int):
                 "ontology_source_id": ontology_source_id,
                 "target_class": target_class,
             }
+            ontology_warning = _sync_jira_key_to_ontology(record, ontology_source_id, jira_key)
+            if ontology_warning:
+                record.jira_payload["ontology_sync_warning"] = ontology_warning
             record.save(update_fields=["jira_key", "jira_status", "processing_error", "jira_payload", "updated_at"])
             rows.append(_jira_export_row(record))
         except Exception as exc:
@@ -954,6 +956,30 @@ def _target_class_for_jira(record: FeedbackRecord) -> str:
         if separator in value:
             return value.split(separator, 1)[0] or "Feature"
     return value or "Feature"
+
+
+def _sync_jira_key_to_ontology(record: FeedbackRecord, ontology_source_id: str, jira_key: str) -> str:
+    try:
+        atualizar_jira_key_na_ontologia(ontology_source_id, record.consequence, jira_key)
+        return ""
+    except Exception as exc:
+        message = (
+            "Ticket Jira criado, mas nao foi possivel sincronizar a chave na ontologia: "
+            f"{exc}"
+        )
+        PipelineEvent.objects.create(
+            job=record.job,
+            level=PipelineEvent.Level.WARNING,
+            message=message[:255],
+            metadata={
+                "feedback_id": record.id,
+                "source_id": record.source_id,
+                "ontology_source_id": ontology_source_id,
+                "jira_key": jira_key,
+                "error": str(exc),
+            },
+        )
+        return str(exc)
 
 
 def _ontology_source_id_for_record(record: FeedbackRecord) -> str:
