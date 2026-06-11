@@ -13,3 +13,4 @@
 - Adicionada variavel `FEED_ON_LEXICON_REFRESH_EXISTING` para controlar enriquecimento automatico de dominios ja conhecidos.
 - Atualizados `README.md`, `.env.example`, `requirements.txt` e `explicacao.md` para o novo fluxo.
 - Atualizada a tela de upload para permitir limpar jobs com falha e abrir diretamente o dashboard de um job recente.
+- Refatorado o relatorio executivo DOCX para usar tabelas, corrigir percentuais por contagem real de consequencias, sanitizar textos de feedback e exibir status Jira como `Pendente de Exportacao` quando ainda nao houver chave gerada.

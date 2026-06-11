@@ -171,6 +171,26 @@ Ao final, o sistema gera:
 - relatorio DOCX;
 - possibilidade de exportacao manual ao Jira.
 
+## Relatorio executivo automatizado
+
+A exportacao DOCX e montada por `pipeline/services/reporter.py`. O relatorio usa tabelas executivas em vez de linhas de texto separadas por pipes.
+
+O documento apresenta:
+
+- tabela de indicadores globais;
+- distribuicao de consequencias por contagem real e percentual;
+- features criticas;
+- media de sentimento por categoria;
+- Top 10 Critical Issues em tabela com ID, texto sanitizado, nivel de sentimento, alvo semantico inferido e status Jira.
+
+O percentual de cada consequencia e calculado como:
+
+```text
+percentual = numero_de_ocorrencias_da_consequencia / total_de_feedbacks_analisados * 100
+```
+
+Antes de inserir o texto original do feedback, o relatorio remove residuos de parsing como colchetes, aspas duplicadas, pontos-e-virgulas e espacos de controle. Quando nao ha chave Jira, o status exibido e `Pendente de Exportacao`.
+
 ## Formulacao cientifica
 
 O FEED-ON pode ser descrito como um pipeline de enriquecimento semantico de feedback textual com adaptacao dinamica de contexto. A IA atua em duas camadas: primeiro, na geracao de um lexico especifico para o dominio do software; depois, na extracao semantica de intencao, sentimento e alvo candidato dos feedbacks. A ontologia FEED-ON atua na camada de representacao formal, convertendo os resultados em individuos e relacoes OWL. O mecanismo de reasoner permite inferencias adicionais sobre alvos e consequencias. O resultado e uma base de feedbacks rastreavel, semanticamente classificada e adaptavel a diferentes dominios de software.

@@ -158,6 +158,10 @@ Durante um job ativo, use `Cancelar processamento` para marcar o job como cancel
 
 Na tela de upload, a lista de jobs recentes permite abrir diretamente o dashboard filtrado para um job especifico. A mesma area possui a acao `Limpar falhas`, que remove em lote os jobs do usuario autenticado que terminaram com status `failed`.
 
+## Relatorio executivo
+
+A exportacao DOCX gera um relatorio executivo com tabelas para indicadores globais, distribuicao de consequencias, features criticas, sentimento por categoria e Top 10 Critical Issues. Os percentuais de consequencia sao calculados por contagem real sobre o total de feedbacks analisados no relatorio. Antes de inserir o texto original nas tabelas, o sistema sanitiza residuos de parsing como colchetes, aspas duplicadas e delimitadores. Feedbacks ainda nao exportados ao Jira aparecem como `Pendente de Exportacao`.
+
 
 
 

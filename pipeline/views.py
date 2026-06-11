@@ -1,6 +1,5 @@
 ﻿import csv
 import json
-from io import BytesIO
 from threading import Thread
 from urllib.parse import urlencode
 
@@ -8,8 +7,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import close_old_connections
-from django.db.models import Avg, Count, FloatField, Q, Value
-from django.db.models.functions import Coalesce
+from django.db.models import Avg, Count, Q
 from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -22,6 +20,7 @@ from .services.jira import JiraConfig, criar_ticket_jira, settings_jira_config, 
 from .services.llm import normalize_domain_name
 from .services.ontology import FeedOnOntologyService, atualizar_jira_key_na_ontologia
 from .services.processor import process_job
+from .services.reporter import build_executive_report_docx
 from .tasks import process_feedback_job
 
 ALLOWED_SENTIMENT_FILTERS = {"all", "negative", "neutral", "positive"}
@@ -495,70 +494,11 @@ def export_docx(request: HttpRequest):
     job = _require_selected_job(request)
     sentiment_filter, consequence_filter = _parse_filters(request)
     feedbacks = _filtered_feedbacks(job, sentiment_filter, consequence_filter).order_by("id")
-    snapshot = _build_dashboard_snapshot(request, job, feedbacks, sentiment_filter, consequence_filter)
-    ontology = FeedOnOntologyService()
 
     try:
-        from docx import Document
-    except Exception as exc:  # pragma: no cover
-        return JsonResponse({"error": f"Biblioteca python-docx indisponivel: {exc}"}, status=503)
-
-    document = Document()
-    run_date = timezone.localtime(job.finished_at or timezone.now()).strftime("%d/%m/%Y %H:%M")
-
-    document.add_heading("Relatorio Executivo FEED-ON", level=1)
-    document.add_paragraph(f"Data do processamento: {run_date}")
-    document.add_paragraph(f"Lote analisado: Job #{job.id} - {job.original_filename}")
-
-    cards = snapshot["cards"]
-    consequence_chart = snapshot["charts"]["consequence_distribution"]
-    critical_chart = snapshot["charts"]["top_critical_features"]
-    sentiment_chart = snapshot["charts"]["sentiment_by_category"]
-
-    document.add_heading("Resumo Executivo", level=2)
-    document.add_paragraph(
-        (
-            f"Foram avaliados {cards['total_feedbacks']} feedbacks na visao atual. "
-            f"{cards['negative_percent']}% apresentam sentimento negativo e "
-            f"{cards['jira_tickets']} tickets Jira foram gerados."
-        )
-    )
-    document.add_paragraph(
-        "Distribuicao de consequencias: "
-        + _chart_textual_summary(consequence_chart["labels"], consequence_chart["data"], "%")
-    )
-    document.add_paragraph(
-        "Top 5 features criticas (concentracao de Correction): "
-        + _chart_textual_summary(critical_chart["labels"], critical_chart["data"], "casos")
-    )
-    document.add_paragraph(
-        "Media de sentimento por categoria: "
-        + _chart_textual_summary(sentiment_chart["labels"], sentiment_chart["data"], "media")
-    )
-
-    critical_rows = list(
-        feedbacks.filter(consequence="Correction")
-        .annotate(sentiment_sort=Coalesce("sentiment_score", Value(1.0), output_field=FloatField()))
-        .order_by("sentiment_sort", "id")[:10]
-    )
-    document.add_heading("Top 10 Critical Issues", level=2)
-    if not critical_rows:
-        document.add_paragraph("Nao ha issues criticos para os filtros selecionados.")
-    else:
-        for record in critical_rows:
-            document.add_paragraph(
-                (
-                    f"[{record.source_id}] {record.text} | "
-                    f"Sentimento: {_format_sentiment(record.sentiment_score)} | "
-                    f"Alvo Inferido: {_semantic_inferred_target(ontology, record)} | "
-                    f"Jira: {record.jira_key or 'nao gerado'}"
-                ),
-                style="List Number",
-            )
-
-    buffer = BytesIO()
-    document.save(buffer)
-    buffer.seek(0)
+        buffer = build_executive_report_docx(job, feedbacks)
+    except RuntimeError as exc:
+        return JsonResponse({"error": str(exc)}, status=503)
 
     filename = f"feed-on-job-{job.id}-relatorio-executivo.docx"
     response = HttpResponse(
