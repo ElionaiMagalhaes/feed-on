@@ -15,7 +15,7 @@ python manage.py runserver
 
 ## Deploy no Railway
 
-O projeto inclui `railway.toml` para o Railway instalar as dependencias com Nixpacks, executar `collectstatic`, aplicar migrations e iniciar o Django com Gunicorn usando a porta injetada em `PORT`.
+O projeto inclui `railway.toml` para o Railway instalar as dependencias com Nixpacks, executar `collectstatic`, aplicar migrations e iniciar o Django com Gunicorn usando a porta injetada em `PORT`. O arquivo `nixpacks.toml` adiciona `jdk17` ao ambiente para permitir a execucao do reasoner Pellet usado pelo Owlready2.
 
 Configure no Railway:
 
@@ -83,7 +83,7 @@ FLUSH PRIVILEGES;
 
 Coloque preferencialmente o arquivo em `ontology/FEED-ON.owl`, ou ajuste `FEED_ON_ONTOLOGY_PATH` no `.env`. O `.ofn` tambem pode ficar na pasta como referencia.
 
-O servico tenta carregar o arquivo com Owlready2 e executar Pellet. Caso o arquivo ainda nao exista, o formato nao seja aceito pelo loader local ou Java/Pellet falhe, o job registra um aviso e usa inferencia deterministica de fallback para manter o fluxo de upload, classificacao e Jira funcionando.
+O servico tenta carregar o arquivo com Owlready2 e executar Pellet. Em producao no Railway, o Java e instalado via `nixpacks.toml` (`jdk17`). Caso o arquivo ainda nao exista, o formato nao seja aceito pelo loader local ou Java/Pellet falhe, o job registra um aviso e usa inferencia deterministica de fallback para manter o fluxo de upload, classificacao e Jira funcionando.
 
 Se o `.ofn` nao carregar no Owlready2 da sua instalacao, exporte tambem uma versao `.owl` RDF/XML ou OWL/XML e aponte `FEED_ON_ONTOLOGY_PATH` para ela.
 

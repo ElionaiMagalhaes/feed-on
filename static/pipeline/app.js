@@ -20,6 +20,8 @@ const clearFailedJobsButton = document.querySelector("#clear-failed-jobs");
 
 let pollTimer = null;
 let activeCancelUrl = "";
+let activeDashboardUrl = "";
+let redirectingToDashboard = false;
 
 function setSelectedFile(file) {
   if (!file) {
@@ -70,6 +72,7 @@ function setStatus(data) {
   progressBar.style.width = `${data.progress_percent || 0}%`;
   progressBar.textContent = `${data.progress_percent || 0}%`;
   activeCancelUrl = data.cancel_url || activeCancelUrl;
+  activeDashboardUrl = data.dashboard_url || activeDashboardUrl;
   eventList.innerHTML = "";
 
   for (const event of data.events || []) {
@@ -95,6 +98,11 @@ function setStatus(data) {
     clearInterval(pollTimer);
     pollTimer = null;
     cancelButton.disabled = true;
+  }
+
+  if (data.status === "completed" && activeDashboardUrl && !redirectingToDashboard) {
+    redirectingToDashboard = true;
+    window.location.assign(activeDashboardUrl);
   }
 }
 
@@ -353,6 +361,8 @@ form.addEventListener("submit", async (event) => {
       throw new Error(data.error || "Falha no upload.");
     }
     activeCancelUrl = data.cancel_url || "";
+    activeDashboardUrl = data.dashboard_url || "";
+    redirectingToDashboard = false;
     setFileFeedbackState("accepted");
     poll(data.status_url);
   } catch (error) {

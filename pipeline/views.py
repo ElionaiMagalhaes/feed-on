@@ -574,8 +574,10 @@ def _looks_like_supported_feedback_upload(upload) -> bool:
 
 
 def _job_urls(request: HttpRequest, job: ProcessingJob) -> dict:
+    dashboard_url = f"{reverse('pipeline:dashboard')}?{urlencode({'job': job.id})}"
     return {
         "job_id": job.id,
+        "dashboard_url": request.build_absolute_uri(dashboard_url),
         "status_url": request.build_absolute_uri(reverse("pipeline:job_status", args=[job.id])),
         "cancel_url": request.build_absolute_uri(reverse("pipeline:cancel_job", args=[job.id])),
         "delete_url": request.build_absolute_uri(reverse("pipeline:delete_job", args=[job.id])),

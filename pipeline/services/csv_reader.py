@@ -290,9 +290,67 @@ def _iter_xlsx_feedback(path: Path, limit: int | None = None) -> Iterable[CsvFee
 
 def _sniff_dialect(sample: str):
     try:
-        return csv.Sniffer().sniff(sample, delimiters=",;\t|")
+        dialect = csv.Sniffer().sniff(sample, delimiters=",;\t|")
     except csv.Error:
-        return csv.excel
+        preferred = _preferred_delimiter(sample)
+        return _dialect_with_delimiter(preferred) if preferred else csv.excel
+
+    preferred = _preferred_delimiter(sample, fallback=getattr(dialect, "delimiter", ","))
+    if preferred and preferred != getattr(dialect, "delimiter", ","):
+        return _dialect_with_delimiter(preferred)
+    return dialect
+
+
+def _preferred_delimiter(sample: str, fallback: str = ",") -> str:
+    first_line = _first_non_empty_text_line(sample)
+    if not first_line:
+        return fallback
+
+    best_delimiter = ""
+    best_score = -1
+    fallback_score = _delimiter_score(first_line, fallback)
+    for delimiter in (",", ";", "\t", "|"):
+        score = _delimiter_score(first_line, delimiter)
+        if score > best_score:
+            best_score = score
+            best_delimiter = delimiter
+
+    if best_score > fallback_score or fallback_score <= 0:
+        return best_delimiter
+    return fallback
+
+
+def _delimiter_score(line: str, delimiter: str) -> int:
+    if delimiter not in line:
+        return 0
+    try:
+        columns = next(csv.reader([line], delimiter=delimiter))
+    except csv.Error:
+        return 0
+
+    normalized = {_normalize_column(name): name for name in columns}
+    score = len(columns)
+    if _first_existing(normalized, TEXT_COLUMNS):
+        score += 100
+    return score
+
+
+def _first_non_empty_text_line(sample: str) -> str:
+    for line in (sample or "").splitlines():
+        if line.strip():
+            return line
+    return ""
+
+
+def _dialect_with_delimiter(delimiter: str):
+    return type(
+        "FeedOnCsvDialect",
+        (csv.excel,),
+        {
+            "delimiter": delimiter,
+            "skipinitialspace": True,
+        },
+    )
 
 
 def _normalize_column(name: str) -> str:
