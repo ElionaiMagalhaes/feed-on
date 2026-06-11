@@ -391,6 +391,10 @@ h4 {
   color: var(--muted);
 }
 
+.upload-select-button {
+  min-width: 12rem;
+}
+
 .status-layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
@@ -516,6 +520,13 @@ h4 {
   padding: 0;
 }
 
+.recent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
 .recent-job-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -531,8 +542,15 @@ h4 {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
+  color: var(--ink);
   padding: .65rem .75rem;
   text-align: left;
+  text-decoration: none;
+}
+
+.recent-job:hover {
+  border-color: var(--accent);
+  color: var(--ink);
 }
 
 .recent-job span {

@@ -5,9 +5,17 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
-from pipeline.models import FeedbackRecord, PipelineEvent, ProcessingJob
+from pipeline.models import DomainLexicon, FeedbackRecord, PipelineEvent, ProcessingJob
 
 from .csv_reader import inspect_csv, iter_feedback
+from .llm import (
+    CATEGORY_FIELDS,
+    generate_domain_keywords,
+    keywords_from_storage,
+    keywords_to_storage,
+    merge_keyword_lists,
+    normalize_domain_name,
+)
 from .nlp import extract_feedback_semantics_batch
 from .ontology import FeedOnOntologyService
 
@@ -20,7 +28,7 @@ class JobCanceled(Exception):
 
 PIPELINE_STEPS = (
     ("upload", "Upload recebido"),
-    ("csv_validation", "Leitura e validacao do CSV"),
+    ("csv_validation", "Leitura e validacao do arquivo"),
     ("ai_processing", "Analise IA / fallback local"),
     ("ontology", "Instanciacao FEED-ON"),
     ("reasoner", "Reasoner ontologico"),
@@ -38,7 +46,7 @@ def process_job(job_id: int) -> dict:
         _initialize_steps(job)
         _start_step(job, "upload", "Arquivo recebido e job criado.")
         _complete_step(job, "upload", "Upload pronto para processamento.")
-        _start_step(job, "csv_validation", "Lendo CSV e contando feedbacks validos.")
+        _start_step(job, "csv_validation", "Lendo arquivo e contando feedbacks validos.")
         job.mark_running("Processando feedbacks...")
         csv_inspection = inspect_csv(path, limit=job.row_limit)
         total_rows = csv_inspection.valid_rows
@@ -50,6 +58,12 @@ def process_job(job_id: int) -> dict:
             _event(job, warning, level=PipelineEvent.Level.WARNING)
         if job.row_limit:
             _event(job, f"Limite aplicado: processando os primeiros {job.row_limit} feedbacks.")
+
+        domain_name = normalize_domain_name(job.domain_name)
+        if job.domain_name != domain_name:
+            job.domain_name = domain_name
+            job.save(update_fields=["domain_name", "updated_at"])
+        _prepare_domain_lexicon(job, domain_name)
 
         _start_step(job, "ontology", "Carregando ontologia FEED-ON.")
         ontology = FeedOnOntologyService()
@@ -131,6 +145,7 @@ def _process_chunk(job: ProcessingJob, chunk, ontology: FeedOnOntologyService) -
             technical_target=nlp_result.technical_target,
             sentiment_score=nlp_result.sentiment_score,
             ai_provider=nlp_result.ai_provider,
+            domain_name=job.domain_name,
         )
         for warning in ontology_result.warnings:
             if warning not in warnings_seen:
@@ -177,6 +192,39 @@ def _process_chunk(job: ProcessingJob, chunk, ontology: FeedOnOntologyService) -
             total=job.total_rows,
             message=f"{job.processed_rows}/{job.total_rows} feedbacks instanciados. Avisos: {ontology_warnings}.",
         )
+
+
+def _prepare_domain_lexicon(job: ProcessingJob, domain_name: str) -> DomainLexicon:
+    lexicon = DomainLexicon.objects.filter(domain_name=domain_name).first()
+    should_generate = lexicon is None or settings.FEED_ON_LEXICON_REFRESH_EXISTING
+    generated = generate_domain_keywords(domain_name) if should_generate else {}
+
+    if lexicon is None:
+        lexicon = DomainLexicon(domain_name=domain_name)
+        action = "criado"
+    else:
+        action = "reutilizado"
+
+    if generated:
+        action = "enriquecido" if lexicon.pk else "criado"
+        for category, field_name in CATEGORY_FIELDS.items():
+            existing_terms = keywords_from_storage(getattr(lexicon, field_name, ""))
+            merged_terms = merge_keyword_lists(existing_terms, generated.get(category, []))
+            setattr(lexicon, field_name, keywords_to_storage(merged_terms))
+        lexicon.save()
+
+    if not lexicon.pk:
+        lexicon.save()
+
+    job.metadata = {
+        **(job.metadata or {}),
+        "domain_name": domain_name,
+        "domain_lexicon_id": lexicon.id,
+        "domain_lexicon_action": action,
+    }
+    job.save(update_fields=["metadata", "updated_at"])
+    _event(job, f"Lexico de dominio '{domain_name}' {action}.")
+    return lexicon
 
 
 def _run_reasoner_for_chunk(job: ProcessingJob, ontology: FeedOnOntologyService, records: list[FeedbackRecord]) -> None:
@@ -228,6 +276,8 @@ def _csv_inspection_payload(inspection) -> dict:
         "target_column": inspection.target_column,
         "intent_column": inspection.intent_column,
         "delimiter": inspection.delimiter,
+        "file_format": getattr(inspection, "file_format", "csv"),
+        "sheet_name": getattr(inspection, "sheet_name", ""),
         "warnings": list(inspection.warnings),
     }
 

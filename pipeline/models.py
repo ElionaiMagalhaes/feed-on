@@ -21,6 +21,7 @@ class ProcessingJob(models.Model):
     )
     original_filename = models.CharField(max_length=255)
     upload = models.FileField(upload_to="uploads/%Y/%m/%d/")
+    domain_name = models.CharField(max_length=100, default="geral")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     total_rows = models.PositiveIntegerField(default=0)
     processed_rows = models.PositiveIntegerField(default=0)
@@ -86,6 +87,22 @@ class ProcessingJob(models.Model):
         self.error_message = message
         self.finished_at = timezone.now()
         self.save(update_fields=["status", "current_phase", "error_message", "finished_at", "updated_at"])
+
+
+class DomainLexicon(models.Model):
+    domain_name = models.CharField(max_length=100, unique=True)
+    ui_elements = models.TextField(blank=True)
+    quality_attributes = models.TextField(blank=True)
+    requirements = models.TextField(blank=True)
+    processes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["domain_name"]
+
+    def __str__(self) -> str:
+        return self.domain_name
 
 
 class FeedbackRecord(models.Model):

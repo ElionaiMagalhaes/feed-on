@@ -1,6 +1,6 @@
 ﻿from django.contrib import admin
 
-from .models import FeedbackRecord, PipelineEvent, ProcessingJob
+from .models import DomainLexicon, FeedbackRecord, PipelineEvent, ProcessingJob
 
 
 class PipelineEventInline(admin.TabularInline):
@@ -11,9 +11,9 @@ class PipelineEventInline(admin.TabularInline):
 
 @admin.register(ProcessingJob)
 class ProcessingJobAdmin(admin.ModelAdmin):
-    list_display = ("id", "owner", "original_filename", "status", "total_rows", "processed_rows", "created_at")
-    list_filter = ("status", "owner", "created_at")
-    search_fields = ("original_filename", "owner__email", "owner__username")
+    list_display = ("id", "owner", "original_filename", "domain_name", "status", "total_rows", "processed_rows", "created_at")
+    list_filter = ("status", "domain_name", "owner", "created_at")
+    search_fields = ("original_filename", "domain_name", "owner__email", "owner__username")
     readonly_fields = ("created_at", "updated_at", "started_at", "finished_at")
     inlines = [PipelineEventInline]
 
@@ -23,6 +23,13 @@ class FeedbackRecordAdmin(admin.ModelAdmin):
     list_display = ("source_id", "job", "intent", "ai_intent", "sentiment_score", "target_candidate", "technical_target", "inferred_target", "consequence", "jira_key")
     list_filter = ("intent", "ai_intent", "ai_provider", "consequence", "jira_status")
     search_fields = ("source_id", "text", "jira_key", "inferred_target")
+
+
+@admin.register(DomainLexicon)
+class DomainLexiconAdmin(admin.ModelAdmin):
+    list_display = ("domain_name", "updated_at", "created_at")
+    search_fields = ("domain_name", "ui_elements", "quality_attributes", "requirements", "processes")
+    readonly_fields = ("created_at", "updated_at")
 
 
 @admin.register(PipelineEvent)

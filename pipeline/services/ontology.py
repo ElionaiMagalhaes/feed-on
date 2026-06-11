@@ -8,6 +8,9 @@ from typing import Any
 
 from django.conf import settings
 
+from pipeline.models import DomainLexicon
+from pipeline.services.llm import CATEGORY_FIELDS, keywords_from_storage, normalize_domain_name
+
 logger = logging.getLogger(__name__)
 
 TARGET_PARENT_RULES = {
@@ -16,66 +19,6 @@ TARGET_PARENT_RULES = {
     "UIElement.Filter.Date": "Feature.SearchAndFiltering",
     "UIElement.Search": "Feature.SearchAndFiltering",
 }
-SEMANTIC_TARGET_MAP = {
-    "UIElement": (
-        r"\bbutton\b",
-        r"\bscreen\b",
-        r"\bclick\b",
-        r"\bui\b",
-        r"\binterface\b",
-        r"\bicon\b",
-        r"\bbrightness\b",
-        r"\bplayer layout\b",
-        r"\bdisplay\b",
-        r"\bborda\b",
-        r"\btela\b",
-        r"\bbotão\b",
-        r"\bvisual\b",
-    ),
-    "QualityAttribute": (
-        r"\bslow\b",
-        r"\bbuffering\b",
-        r"\blag\b",
-        r"\bcrash\b",
-        r"\bfreeze\b",
-        r"\bloading\b",
-        r"\bquality\b",
-        r"\bresolution\b",
-        r"\bpixel\b",
-        r"\baudio quality\b",
-        r"\busabilidade\b",
-        r"\btravando\b",
-        r"\blento\b",
-    ),
-    "Requirement": (
-        r"\bhousehold\b",
-        r"\bsubscription\b",
-        r"\bpay\b",
-        r"\bmoney\b",
-        r"\bpremium\b",
-        r"\brules\b",
-        r"\baccount\b",
-        r"\blogin\b",
-        r"\bpassword\b",
-        r"\bfamily sharing\b",
-        r"\bpreço\b",
-        r"\bassinatura\b",
-        r"\bperfil\b",
-        r"\bprofile\b",
-    ),
-    "Process": (
-        r"\btroubleshooting\b",
-        r"\bhelp centre\b",
-        r"\brefunding\b",
-        r"\brecharge\b",
-        r"\batendimento\b",
-        r"\bsuporte\b",
-        r"\bcontato\b",
-        r"\bajuda\b",
-        r"\bwebsite\b",
-    ),
-}
-
 INTENTION_CLASS_MARKERS = {"Intention_BugReport", "Intention_Suggestion", "BugReport", "Suggestion"}
 FUNCTIONAL_DEBUG_PROPERTIES = {"hasIntention", "commentText", "sentimentScore", "jiraKey"}
 FEED_ON_CLASS_IRIS = {
@@ -96,19 +39,23 @@ CONSEQUENCE_CLASSES = {"Correction", "Improvement", "Prioritization"}
 TARGET_ROOT_CLASSES = {"DataItem", "Feature", "Process", "QualityAttribute", "Requirement", "UIElement"}
 
 
-def classify_target(text: str) -> tuple[str, str]:
+def classify_target(text: str, domain_name: str = "geral") -> tuple[str, str]:
     """
     Analisa o texto do feedback e infere a classe e o individuo do Target
-    com base nas heuristicas de dominio da FEED-ON.
+    com base no lexico persistente do dominio informado para a FEED-ON.
     """
     text_lower = (text or "").lower()
     normalized_text = _strip_accents(text_lower)
+    lexicon = DomainLexicon.objects.filter(domain_name=normalize_domain_name(domain_name)).first()
+    if lexicon is None:
+        return "Feature", "Feature_General"
 
-    for target_class, keywords in SEMANTIC_TARGET_MAP.items():
-        for keyword_regex in keywords:
+    for target_class, field_name in CATEGORY_FIELDS.items():
+        for keyword in keywords_from_storage(getattr(lexicon, field_name, "")):
+            keyword_regex = _keyword_regex(keyword)
             normalized_regex = _strip_accents(keyword_regex)
             if re.search(keyword_regex, text_lower) or re.search(normalized_regex, normalized_text):
-                clean_keyword = _clean_keyword_for_individual(keyword_regex)
+                clean_keyword = _clean_keyword_for_individual(keyword)
                 instance_name = f"{target_class}_{clean_keyword.title().replace(' ', '')}"
                 return target_class, _safe_name(instance_name)
 
@@ -191,13 +138,14 @@ class FeedOnOntologyService:
         technical_target: str,
         sentiment_score: float | None = None,
         ai_provider: str = "",
+        domain_name: str = "geral",
         create_jira_issue: bool = False,
     ) -> OntologyResult:
         warnings = []
         if self.load_warning:
             warnings.append(self.load_warning)
 
-        target_class, target_instance_name = classify_target(text)
+        target_class, target_instance_name = classify_target(text, domain_name=domain_name)
         inferred_target = target_instance_name
         consequence = self._derive_consequence(intent, text, sentiment_score)
         jira_key = ""
@@ -776,6 +724,12 @@ def _safe_name(value: str) -> str:
 def _clean_keyword_for_individual(keyword_regex: str) -> str:
     cleaned = keyword_regex.replace(r"\b", "").replace("\\", "").strip()
     return re.sub(r"\s+", " ", cleaned)
+
+
+def _keyword_regex(keyword: str) -> str:
+    escaped = re.escape((keyword or "").strip().lower())
+    escaped = escaped.replace(r"\ ", r"\s+")
+    return rf"\b{escaped}\b"
 
 
 def _strip_accents(value: str) -> str:

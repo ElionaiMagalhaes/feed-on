@@ -19,6 +19,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from .models import FeedbackRecord, PipelineEvent, ProcessingJob
 from .services.jira import JiraConfig, criar_ticket_jira, settings_jira_config, testar_comunicacao_jira
+from .services.llm import normalize_domain_name
 from .services.ontology import FeedOnOntologyService, atualizar_jira_key_na_ontologia
 from .services.processor import process_job
 from .tasks import process_feedback_job
@@ -49,11 +50,13 @@ def landing(request: HttpRequest):
 @login_required
 def index(request: HttpRequest):
     jobs = _user_jobs(request)[:10]
+    failed_jobs_count = _user_jobs(request).filter(status=ProcessingJob.Status.FAILED).count()
     return render(
         request,
         "pipeline/index.html",
         {
             "jobs": jobs,
+            "failed_jobs_count": failed_jobs_count,
             "max_upload_size_mb": settings.MAX_UPLOAD_SIZE_MB,
             "active_nav": "upload",
         },
@@ -65,9 +68,9 @@ def index(request: HttpRequest):
 def create_job(request: HttpRequest):
     upload = request.FILES.get("dataset")
     if upload is None:
-        return JsonResponse({"error": "Envie um arquivo CSV."}, status=400)
-    if not _looks_like_csv_upload(upload):
-        return JsonResponse({"error": "O arquivo precisa estar no formato CSV."}, status=400)
+        return JsonResponse({"error": "Envie um arquivo CSV ou XLSX."}, status=400)
+    if not _looks_like_supported_feedback_upload(upload):
+        return JsonResponse({"error": "O arquivo precisa estar no formato CSV ou XLSX."}, status=400)
 
     max_size = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
     if upload.size > max_size:
@@ -77,7 +80,15 @@ def create_job(request: HttpRequest):
     if error:
         return JsonResponse({"error": error}, status=400)
 
-    job = ProcessingJob.objects.create(owner=request.user, original_filename=upload.name, upload=upload, row_limit=row_limit)
+    domain_name = normalize_domain_name(request.POST.get("domain_name", ""))
+    job = ProcessingJob.objects.create(
+        owner=request.user,
+        original_filename=upload.name,
+        upload=upload,
+        row_limit=row_limit,
+        domain_name=domain_name,
+        metadata={"domain_name": domain_name},
+    )
     try:
         if settings.CELERY_TASK_ALWAYS_EAGER:
             _start_local_background_job(job.id)
@@ -127,6 +138,26 @@ def delete_job(request: HttpRequest, job_id: int):
     upload.delete(save=False)
     job.delete()
     return JsonResponse({"deleted": True, "job_id": job_id, "message": f"Job {job_id} ({filename}) deletado."})
+
+
+@require_POST
+@login_required
+def clear_failed_jobs(request: HttpRequest):
+    failed_jobs = list(_user_jobs(request).filter(status=ProcessingJob.Status.FAILED))
+    deleted_count = 0
+    for job in failed_jobs:
+        upload = job.upload
+        if upload:
+            upload.delete(save=False)
+        job.delete()
+        deleted_count += 1
+
+    return JsonResponse(
+        {
+            "deleted": deleted_count,
+            "message": f"{deleted_count} job(s) com falha removido(s).",
+        }
+    )
 
 
 @require_POST
@@ -326,6 +357,7 @@ def job_status(request: HttpRequest, job_id: int):
         "current_phase": job.current_phase,
         "pipeline_steps": _pipeline_steps(job),
         "csv_inspection": (job.metadata or {}).get("csv_inspection", {}),
+        "domain_name": job.domain_name,
         "total_rows": job.total_rows,
         "processed_rows": job.processed_rows,
         "row_limit": job.row_limit,
@@ -550,14 +582,23 @@ def _parse_row_limit(raw_value: str) -> tuple[int | None, str]:
     return value, ""
 
 
-def _looks_like_csv_upload(upload) -> bool:
+def _looks_like_supported_feedback_upload(upload) -> bool:
     filename = (upload.name or "").strip().lower()
     content_type = (getattr(upload, "content_type", "") or "").split(";", 1)[0].strip().lower()
+    if filename.endswith((".xlsx", ".xlsm")):
+        return True
+
+    excel_content_types = {
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel.sheet.macroenabled.12",
+    }
+    if content_type in excel_content_types:
+        return True
+
     allowed_content_types = {
         "text/csv",
         "application/csv",
         "text/comma-separated-values",
-        "application/vnd.ms-excel",
     }
     if filename.endswith(".csv") or content_type in allowed_content_types:
         return True
@@ -723,6 +764,7 @@ def _build_dashboard_snapshot(
             "id": job.id,
             "status": job.status,
             "filename": job.original_filename,
+            "domain_name": job.domain_name,
             "processed_rows": job.processed_rows,
             "total_rows": job.total_rows,
             "finished_at": timezone.localtime(job.finished_at).isoformat() if job.finished_at else None,
@@ -779,6 +821,7 @@ def _semantic_inferred_target(ontology: FeedOnOntologyService, record: FeedbackR
             text=record.text,
             intent=record.intent,
             technical_target=technical_target,
+            domain_name=getattr(record.job, "domain_name", "geral"),
             create_jira_issue=False,
         )
         semantic_value = ontology.inferred_target_for(source_id)
@@ -811,7 +854,7 @@ def _pipeline_steps(job: ProcessingJob) -> list[dict]:
         return steps
     return [
         {"key": "upload", "label": "Upload recebido", "status": "completed" if job.id else "pending", "message": ""},
-        {"key": "csv_validation", "label": "Leitura e validacao do CSV", "status": "pending", "message": ""},
+        {"key": "csv_validation", "label": "Leitura e validacao do arquivo", "status": "pending", "message": ""},
         {"key": "ai_processing", "label": "Analise IA / fallback local", "status": "pending", "message": ""},
         {"key": "ontology", "label": "Instanciacao FEED-ON", "status": "pending", "message": ""},
         {"key": "reasoner", "label": "Reasoner ontologico", "status": "pending", "message": ""},

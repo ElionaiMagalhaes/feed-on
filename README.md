@@ -30,6 +30,7 @@ JIRA_EMAIL=you@example.com
 JIRA_API_TOKEN=...
 JIRA_PROJECT_KEY=FEED
 JIRA_DRY_RUN=true
+FEED_ON_LEXICON_REFRESH_EXISTING=false
 ```
 
 Se usar o plugin MySQL do Railway, o Django le automaticamente `MYSQL_URL` ou as variaveis `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD` e `MYSQLDATABASE`. Se usar Redis no Railway, `REDIS_URL` tambem e reconhecida automaticamente para Celery.
@@ -86,7 +87,21 @@ O servico tenta carregar o arquivo com Owlready2 e executar Pellet. Caso o arqui
 
 Se o `.ofn` nao carregar no Owlready2 da sua instalacao, exporte tambem uma versao `.owl` RDF/XML ou OWL/XML e aponte `FEED_ON_ONTOLOGY_PATH` para ela.
 
-## CSV esperado
+### Lexico dinamico por dominio
+
+No upload, informe o dominio do software analisado, por exemplo `delivery`, `gestao escolar` ou `telemedicina`. O pipeline normaliza esse valor e consulta a tabela `DomainLexicon`.
+
+Se o dominio ainda nao existir, o FEED-ON chama a OpenAI para gerar termos em PT-BR nas categorias ontologicas `UIElement`, `QualityAttribute`, `Requirement` e `Process`, salva os termos no banco e usa esse lexico para classificar os alvos dos feedbacks. Se a OpenAI nao estiver disponivel, o job usa um lexico geral de fallback para nao interromper o processamento.
+
+Por padrao, dominios ja conhecidos reutilizam o lexico persistido. Para enriquecer automaticamente dominios existentes a cada novo upload, configure:
+
+```env
+FEED_ON_LEXICON_REFRESH_EXISTING=true
+```
+
+Em producao no Railway, mantenha `OPENAI_API_KEY`, execute as migrations e deixe `FEED_ON_LEXICON_REFRESH_EXISTING=false` caso queira evitar custo/latencia repetidos em dominios ja aprendidos.
+
+## Arquivo de feedback esperado
 
 ```csv
 id,text
@@ -94,7 +109,7 @@ id,text
 2,"Seria bom filtrar os resultados por data"
 ```
 
-Tambem sao aceitas colunas como `feedback_id`, `reviewId`, `comment`, `content`, `review`, `description`, `message`, `target`, `intent` e `technical_target`. O leitor detecta automaticamente CSV separado por virgula, ponto e virgula, tab ou pipe.
+O upload aceita arquivos `.csv`, `.xlsx` e `.xlsm`. Para planilhas Excel, o pipeline le a primeira aba ativa e usa a primeira linha nao vazia como cabecalho quando ela tiver nomes reconhecidos. Se a planilha nao tiver cabecalho, a coluna com maior conteudo textual e inferida automaticamente como texto do feedback. Tambem sao aceitas colunas como `feedback_id`, `reviewId`, `comment`, `content`, `review`, `description`, `message`, `target`, `intent` e `technical_target`. O leitor detecta automaticamente CSV separado por virgula, ponto e virgula, tab ou pipe.
 
 
 ## OpenAI
@@ -137,9 +152,11 @@ JIRA_PROJECT_KEY=FEED
 
 ## Processamento parcial e cancelamento
 
-A tela possui um campo `Quantidade para processar`, preenchido com `1000` por padrao para testes com datasets grandes. Deixe vazio para processar o CSV inteiro.
+A tela possui um campo `Quantidade para processar`, preenchido com `1000` por padrao para testes com datasets grandes. Deixe vazio para processar o arquivo inteiro.
 
 Durante um job ativo, use `Cancelar processamento` para marcar o job como cancelado. O worker verifica esse sinal entre registros, chunks, reasoner e envio ao Jira. Se um processamento antigo tiver sido iniciado antes desta funcionalidade, reinicie o servidor para interromper a thread antiga.
+
+Na tela de upload, a lista de jobs recentes permite abrir diretamente o dashboard filtrado para um job especifico. A mesma area possui a acao `Limpar falhas`, que remove em lote os jobs do usuario autenticado que terminaram com status `failed`.
 
 
 

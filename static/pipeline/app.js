@@ -15,6 +15,8 @@ const selectedFile = document.querySelector("#selected-file");
 const fileFeedback = document.querySelector("#file-feedback");
 const fileFeedbackName = document.querySelector("#file-feedback-name");
 const fileFeedbackMeta = document.querySelector("#file-feedback-meta");
+const selectFileButton = document.querySelector("#select-file-button");
+const clearFailedJobsButton = document.querySelector("#clear-failed-jobs");
 
 let pollTimer = null;
 let activeCancelUrl = "";
@@ -80,7 +82,8 @@ function setStatus(data) {
   const total = data.total_rows || 0;
   const processed = data.processed_rows || 0;
   const limit = data.row_limit ? ` Limite: ${data.row_limit}.` : "";
-  jobDetail.textContent = total ? `${processed}/${total} feedbacks.${limit}` : "Preparando arquivo...";
+  const domain = data.domain_name ? ` Dominio: ${data.domain_name}.` : "";
+  jobDetail.textContent = total ? `${processed}/${total} feedbacks.${limit}${domain}` : `Preparando arquivo...${domain}`;
   cancelButton.disabled = !isCancelable(data.status) || data.cancel_requested;
   cancelButton.textContent = data.cancel_requested ? "Cancelando..." : "Cancelar processamento";
 
@@ -112,10 +115,11 @@ function renderCsvSummary(summary) {
     ["Intencao", summary.intent_column || "inferida"],
   ];
   const warnings = Array.isArray(summary.warnings) ? summary.warnings : [];
+  const delimiterText = summary.file_format === "csv" && summary.delimiter ? ` | Separador: ${escapeHtml(summary.delimiter)}` : "";
   csvSummary.hidden = false;
   csvSummary.innerHTML = `
-    <strong>Validacao do CSV</strong>
-    <span>${escapeHtml(summary.valid_rows)} linhas validas de ${escapeHtml(summary.total_rows || summary.valid_rows)} analisadas. Separador: ${escapeHtml(summary.delimiter || ",")}</span>
+    <strong>Validacao do arquivo</strong>
+    <span>${escapeHtml(summary.valid_rows)} linhas validas de ${escapeHtml(summary.total_rows || summary.valid_rows)} analisadas. Formato: ${escapeHtml(summary.file_format || "csv")}${summary.sheet_name ? ` | Aba: ${escapeHtml(summary.sheet_name)}` : ""}${delimiterText}</span>
     <div class="csv-columns">${columns.map(([label, value]) => `<b>${escapeHtml(label)}:</b> ${escapeHtml(value || "-")}`).join(" | ")}</div>
     ${warnings.length ? `<ul>${warnings.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
   `;
@@ -269,6 +273,40 @@ async function deleteCompletedJob(button) {
   }
 }
 
+async function clearFailedJobs() {
+  if (!clearFailedJobsButton || clearFailedJobsButton.disabled) {
+    return;
+  }
+  if (!window.confirm("Remover todos os jobs com falha? Esta acao remove os feedbacks e eventos desses processamentos.")) {
+    return;
+  }
+
+  const clearUrl = clearFailedJobsButton.dataset.clearUrl;
+  clearFailedJobsButton.disabled = true;
+  clearFailedJobsButton.textContent = "Limpando...";
+  try {
+    const response = await fetch(clearUrl, {
+      method: "POST",
+      headers: {"X-CSRFToken": csrfToken()},
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Nao foi possivel limpar os jobs com falha.");
+    }
+    document.querySelectorAll(".recent-job-row").forEach((row) => {
+      if (row.dataset.status === "failed") {
+        row.remove();
+      }
+    });
+    currentPhase.textContent = data.message || "Jobs com falha removidos.";
+    clearFailedJobsButton.textContent = "Limpar falhas";
+  } catch (error) {
+    clearFailedJobsButton.disabled = false;
+    clearFailedJobsButton.textContent = "Limpar falhas";
+    showError(error);
+  }
+}
+
 function showError(error) {
   currentPhase.textContent = error.message || "Erro inesperado";
   jobStatus.textContent = "error";
@@ -293,7 +331,7 @@ function escapeHtml(value) {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!datasetInput.files.length) {
-    showError(new Error("Selecione um CSV antes de iniciar."));
+    showError(new Error("Selecione um CSV ou XLSX antes de iniciar."));
     return;
   }
 
@@ -324,6 +362,11 @@ form.addEventListener("submit", async (event) => {
 });
 
 cancelButton.addEventListener("click", cancelActiveJob);
+clearFailedJobsButton?.addEventListener("click", clearFailedJobs);
+
+selectFileButton?.addEventListener("click", () => {
+  datasetInput.click();
+});
 
 datasetInput.addEventListener("change", () => {
   if (datasetInput.files.length) {
@@ -347,10 +390,6 @@ dropzone.addEventListener("drop", (event) => {
     datasetInput.files = event.dataTransfer.files;
     setSelectedFile(event.dataTransfer.files[0]);
   }
-});
-
-document.querySelectorAll(".recent-job").forEach((button) => {
-  button.addEventListener("click", () => poll(button.dataset.statusUrl));
 });
 
 document.querySelectorAll(".delete-job").forEach((button) => {

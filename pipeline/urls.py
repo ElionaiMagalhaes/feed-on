@@ -16,6 +16,7 @@ urlpatterns = [
     path("jira/config/save/", views.save_jira_config, name="save_jira_config"),
     path("jira/config/test/", views.test_jira_config, name="test_jira_config"),
     path("jobs/", views.create_job, name="create_job"),
+    path("jobs/clear-failed/", views.clear_failed_jobs, name="clear_failed_jobs"),
     path("jobs/<int:job_id>/status/", views.job_status, name="job_status"),
     path("jobs/<int:job_id>/cancel/", views.cancel_job, name="cancel_job"),
     path("jobs/<int:job_id>/delete/", views.delete_job, name="delete_job"),

@@ -8,7 +8,7 @@
     <div class="container py-5">
       <p class="eyebrow">FEED-ON</p>
       <h2 class="display-6 fw-semibold">Feedbacks de usuarios em tarefas rastreaveis no Jira</h2>
-      <p class="lead mb-0">Envie um CSV, acompanhe o pipeline sem bloquear a tela e revise alvo inferido, consequencia e chave Jira.</p>
+      <p class="lead mb-0">Envie um CSV ou Excel, acompanhe o pipeline sem bloquear a tela e revise alvo inferido, consequencia e chave Jira.</p>
     </div>
   </section>
 
@@ -16,16 +16,21 @@
     <div class="upload-surface" id="dropzone">
       <form id="upload-form" action="{% url 'pipeline:create_job' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input class="visually-hidden" id="dataset" name="dataset" type="file" accept=".csv,text/csv,application/csv,text/plain,application/vnd.ms-excel">
+        <input class="visually-hidden" id="dataset" name="dataset" type="file" accept=".csv,.xlsx,.xlsm,text/csv,application/csv,text/plain,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12">
         <label for="dataset" class="upload-label">
-          <span class="upload-title">Solte o CSV aqui ou clique para selecionar</span>
+          <span class="upload-title">Solte o CSV ou Excel aqui ou clique para selecionar</span>
           <span class="upload-subtitle" id="selected-file">Limite atual: {{ max_upload_size_mb }} MB</span>
         </label>
+        <button class="btn btn-outline-primary upload-select-button mt-3" id="select-file-button" type="button">Selecionar arquivo</button>
         <div class="file-feedback" id="file-feedback" aria-live="polite" hidden>
           <strong id="file-feedback-name">Arquivo selecionado</strong>
           <span id="file-feedback-meta">Pronto para iniciar.</span>
         </div>
         <div class="upload-actions mt-3">
+          <label class="limit-field domain-field" for="domain-name">
+            <span>Domínio do software</span>
+            <input class="form-control" id="domain-name" name="domain_name" type="text" maxlength="100" value="geral" placeholder="Ex: delivery, gestão escolar, telemedicina">
+          </label>
           <label class="limit-field" for="row-limit">
             <span>Quantidade para processar</span>
             <input class="form-control" id="row-limit" name="row_limit" type="number" min="1" step="1" value="1000" placeholder="Todos">
@@ -69,16 +74,27 @@
       <aside class="recent-panel">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <p class="eyebrow mb-0">Jobs recentes</p>
-          <a class="btn btn-sm btn-outline-secondary" href="{% url 'pipeline:dashboard' %}">Abrir dashboard</a>
+          <div class="recent-actions">
+            <button
+              class="btn btn-sm btn-outline-danger"
+              id="clear-failed-jobs"
+              type="button"
+              data-clear-url="{% url 'pipeline:clear_failed_jobs' %}"
+              {% if not failed_jobs_count %}disabled{% endif %}
+            >
+              Limpar falhas{% if failed_jobs_count %} ({{ failed_jobs_count }}){% endif %}
+            </button>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'pipeline:dashboard' %}">Dashboard</a>
+          </div>
         </div>
         {% if jobs %}
           <ul class="recent-list">
             {% for job in jobs %}
-              <li class="recent-job-row">
-                <button class="recent-job" data-status-url="{% url 'pipeline:job_status' job.id %}">
+              <li class="recent-job-row" data-status="{{ job.status }}">
+                <a class="recent-job" href="{% url 'pipeline:dashboard' %}?job={{ job.id }}">
                   <span>{{ job.original_filename }}</span>
                   <strong>{{ job.get_status_display }}</strong>
-                </button>
+                </a>
                 {% if job.status == 'completed' %}
                   <button
                     class="btn btn-sm btn-outline-danger delete-job"

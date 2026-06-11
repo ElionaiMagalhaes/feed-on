@@ -242,7 +242,7 @@ if (root) {
     if (payload?.job) {
       const job = payload.job;
       currentExportJiraUrl = job.export_jira_url || "";
-      jobMeta.textContent = `Job #${job.id} | ${job.filename} | ${job.processed_rows}/${job.total_rows} processados | status: ${job.status}`;
+      jobMeta.textContent = `Job #${job.id} | ${job.filename} | dominio: ${job.domain_name || "geral"} | ${job.processed_rows}/${job.total_rows} processados | status: ${job.status}`;
       const option = selectedJobOption();
       if (option) {
         option.dataset.status = job.status || option.dataset.status || "";
