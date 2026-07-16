@@ -15,6 +15,7 @@ __pycache__/
 htmlcov/
 
 /media/
+/results/
 /staticfiles/
 celerybeat-schedule
 .pytest_cache/

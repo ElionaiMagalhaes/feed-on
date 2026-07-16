@@ -1,0 +1,537 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xml:base="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#" ontologyIRI="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#">
+    <Prefix name="" IRI="http://dev.nemo.inf.ufes.br/seon/FEED-ON.owl#"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="spo" IRI="http://dev.nemo.inf.ufes.br/seon/SPO.owl#"/>
+    <Prefix name="swo" IRI="http://dev.nemo.inf.ufes.br/seon/SWO.owl#"/>
+    <Prefix name="ufo" IRI="http://purl.org/nemo/ufo#"/>
+        <Prefix name="cmpos" IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#CMPO::"/>
+    <Prefix name="eo" IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#EO::"/>
+    <Prefix name="rdpo" IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#RDPO::"/>
+    <Prefix name="rro" IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#RRO::"/>
+<Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="SEON" IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#"/>
+    <Prefix name="goro" IRI="http://dev.nemo.inf.ufes.br/seon/GORO.owl#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Prefix name="rsro" IRI="http://dev.nemo.inf.ufes.br/seon/RSRO.owl#"/>
+    
+    <Import>http://dev.nemo.inf.ufes.br/seon/SEON.owl</Import>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <Literal xml:lang="en">Operational version of the FEED-ON reference ontology developed using SABiOx.</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <Literal xml:lang="en">FEED-ON: Feedback Ontology</Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="owl:versionInfo"/>
+        <Literal>0.2</Literal>
+    </Annotation>
+    <Annotation><AnnotationProperty abbreviatedIRI="rdfs:comment"/><Literal xml:lang="en">Version 0.2 removes the obsolete disjointness axiom among Correction, Improvement, and Prioritization, allowing the operational ontology to represent non-exclusive expected consequences.</Literal></Annotation><Declaration>
+        <Class IRI="Agent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Client"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="ConsequenceExpected"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="EndUser"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="ExternalAgent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Feedback"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FeedbackAttribute"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="InternalAgent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Target"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Context"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Correction"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="DataItem"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Developer"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="ExplicitFeedbackElicitationTechnique"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Feature"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="FeedbackElicitationTechnique"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="ImplicitFeedbackElicitationTechnique"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Improvement"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Intention"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Prioritization"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Process"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="ProductOwner"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="QualityAttribute"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Requirement"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Sentiment"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="TechnicalSupportAgent"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="Tester"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="UIElement"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="aimsToEvolve"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="derivedFrom"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="hasIntention"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="indicates"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="isElicitedThrough"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="isProvidedBy"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="memberOf"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="partOf"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="refersTo"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="commentText"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="deviceInfo"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="isProcessed"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="jiraKey"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="location"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="sentimentScore"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="timestamp"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="Button_Play_TV"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="Feature_VideoPlayer"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="Feedback_001"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="Intention_BugReport"/>
+    </Declaration>
+<SubClassOf>
+        <Class IRI="Client"/>
+        <Class IRI="ExternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Client"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Organization_Stakeholder"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="ConsequenceExpected"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Performed_Activity"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="EndUser"/>
+        <Class IRI="ExternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="EndUser"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Person_Stakeholder"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="ExternalAgent"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Stakeholder"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Feedback"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Simple_Artifact"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="InternalAgent"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Person_Stakeholder"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Context"/>
+        <Class IRI="FeedbackAttribute"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Correction"/>
+        <Class IRI="ConsequenceExpected"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Correction"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#CMPO::Change_Implementation"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="DataItem"/>
+        <Class IRI="Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="DataItem"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Simple_Artifact"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Developer"/>
+        <Class IRI="InternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="ExplicitFeedbackElicitationTechnique"/>
+        <Class IRI="FeedbackElicitationTechnique"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Feature"/>
+        <Class IRI="Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Feature"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#RRO::Software_Function"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="FeedbackElicitationTechnique"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SPO::Technique"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="ImplicitFeedbackElicitationTechnique"/>
+        <Class IRI="FeedbackElicitationTechnique"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Improvement"/>
+        <Class IRI="ConsequenceExpected"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Intention"/>
+        <Class IRI="FeedbackAttribute"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Prioritization"/>
+        <Class IRI="ConsequenceExpected"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Prioritization"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#RDPO::Requirements_Negotiation_and_Prioritization"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Process"/>
+        <Class IRI="Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="ProductOwner"/>
+        <Class IRI="InternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="QualityAttribute"/>
+        <Class IRI="Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="QualityAttribute"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#RSRO::Quality_Characteristic"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Requirement"/>
+        <Class IRI="Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Requirement"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#RSRO::Requirement"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Sentiment"/>
+        <Class IRI="FeedbackAttribute"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="TechnicalSupportAgent"/>
+        <Class IRI="InternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="Tester"/>
+        <Class IRI="InternalAgent"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="UIElement"/>
+        <Class IRI="Target"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="UIElement"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#SwO::Source_Code"/>
+    </SubClassOf>
+    <DisjointClasses>
+        <Class IRI="ExplicitFeedbackElicitationTechnique"/>
+        <Class IRI="ImplicitFeedbackElicitationTechnique"/>
+    </DisjointClasses>
+    <ClassAssertion>
+        <Class IRI="UIElement"/>
+        <NamedIndividual IRI="Button_Play_TV"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="Feature"/>
+        <NamedIndividual IRI="Feature_VideoPlayer"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="Feedback"/>
+        <NamedIndividual IRI="Feedback_001"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="Intention"/>
+        <NamedIndividual IRI="Intention_BugReport"/>
+    </ClassAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="partOf"/>
+        <NamedIndividual IRI="Button_Play_TV"/>
+        <NamedIndividual IRI="Feature_VideoPlayer"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="hasIntention"/>
+        <NamedIndividual IRI="Feedback_001"/>
+        <NamedIndividual IRI="Intention_BugReport"/>
+    </ObjectPropertyAssertion>
+    <ObjectPropertyAssertion>
+        <ObjectProperty IRI="refersTo"/>
+        <NamedIndividual IRI="Feedback_001"/>
+        <NamedIndividual IRI="Button_Play_TV"/>
+    </ObjectPropertyAssertion>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="partOf"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="derivedFrom"/>
+        <ObjectProperty IRI="indicates"/>
+    </InverseObjectProperties>
+    <FunctionalObjectProperty>
+        <ObjectProperty IRI="hasIntention"/>
+    </FunctionalObjectProperty>
+    <FunctionalObjectProperty>
+        <ObjectProperty IRI="memberOf"/>
+    </FunctionalObjectProperty>
+    <TransitiveObjectProperty>
+        <ObjectProperty IRI="partOf"/>
+    </TransitiveObjectProperty>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="aimsToEvolve"/>
+        <Class IRI="ConsequenceExpected"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="derivedFrom"/>
+        <Class IRI="ConsequenceExpected"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="hasIntention"/>
+        <Class IRI="Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="indicates"/>
+        <Class IRI="Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="isElicitedThrough"/>
+        <Class IRI="Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="isProvidedBy"/>
+        <Class IRI="Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="memberOf"/>
+        <Class IRI="InternalAgent"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="partOf"/>
+        <Class IRI="Target"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="refersTo"/>
+        <Class IRI="Feedback"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="aimsToEvolve"/>
+        <Class IRI="Target"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="derivedFrom"/>
+        <Class IRI="Feedback"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="hasIntention"/>
+        <Class IRI="Intention"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="indicates"/>
+        <Class IRI="ConsequenceExpected"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="isElicitedThrough"/>
+        <Class IRI="FeedbackElicitationTechnique"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="isProvidedBy"/>
+        <Class IRI="Agent"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="memberOf"/>
+        <Class IRI="http://dev.nemo.inf.ufes.br/seon/SEON.owl#EO::Organization"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="partOf"/>
+        <Class IRI="Target"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="refersTo"/>
+        <Class IRI="Target"/>
+    </ObjectPropertyRange>
+    <SubObjectPropertyOf>
+        <ObjectPropertyChain>
+            <ObjectProperty IRI="refersTo"/>
+            <ObjectProperty IRI="partOf"/>
+        </ObjectPropertyChain>
+        <ObjectProperty IRI="refersTo"/>
+    </SubObjectPropertyOf>
+    <FunctionalDataProperty>
+        <DataProperty IRI="commentText"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="deviceInfo"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="isProcessed"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="jiraKey"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="location"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="sentimentScore"/>
+    </FunctionalDataProperty>
+    <FunctionalDataProperty>
+        <DataProperty IRI="timestamp"/>
+    </FunctionalDataProperty>
+    <DataPropertyDomain>
+        <DataProperty IRI="commentText"/>
+        <Class IRI="Feedback"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="deviceInfo"/>
+        <Class IRI="Context"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="isProcessed"/>
+        <Class IRI="Feedback"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="jiraKey"/>
+        <Class IRI="ConsequenceExpected"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="location"/>
+        <Class IRI="Context"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="sentimentScore"/>
+        <Class IRI="Sentiment"/>
+    </DataPropertyDomain>
+    <DataPropertyDomain>
+        <DataProperty IRI="timestamp"/>
+        <Class IRI="Context"/>
+    </DataPropertyDomain>
+    <DataPropertyRange>
+        <DataProperty IRI="commentText"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="deviceInfo"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="isProcessed"/>
+        <Datatype abbreviatedIRI="xsd:boolean"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="jiraKey"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="location"/>
+        <Datatype abbreviatedIRI="xsd:string"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="sentimentScore"/>
+        <Datatype abbreviatedIRI="xsd:float"/>
+    </DataPropertyRange>
+    <DataPropertyRange>
+        <DataProperty IRI="timestamp"/>
+        <Datatype abbreviatedIRI="xsd:dateTime"/>
+    </DataPropertyRange>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>aimsToEvolve</IRI>
+        <Literal>It defines which software component the developer should open to perform the correction or improvement.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>derivedFrom</IRI>
+        <Literal>Configurar propriedades inversas ajuda o pipeline a rastrear o caminho de volta (do ticket no Jira até o feedback original).</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>isProvidedBy</IRI>
+        <Literal>It identifies whether the feedback came from an EndUser or an InternalAgent to filter relevance.</Literal>
+    </AnnotationAssertion>
+</Ontology>
+<!-- Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi -->

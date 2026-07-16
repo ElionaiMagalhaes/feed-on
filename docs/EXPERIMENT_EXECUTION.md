@@ -19,6 +19,7 @@
 1. Configure o ambiente a partir de `.env.example`, usando um salt estavel e secreto.
 2. Execute `python manage.py migrate`, `python manage.py check` e `python manage.py test pipeline`.
 3. Confirme `JIRA_DRY_RUN=true` e valide o OWL sem modificar o arquivo de referencia.
+   A execucao FEED-ON 1.1.0 usa `ontology/FEED-ON-v0.2.owl`, versao ontologica 0.2.
 4. Envie CSV, XLSX ou XLSM anonimizado. Comentarios humanos em planilha sao elicitacao explicita; origem desconhecida nao deve ser promovida a explicita.
 5. Ao concluir, arquive `ProcessingJob.metadata`, logs e `results/job_<id>/FEED-ON-job-<id>-instantiated.owl`.
    O pipeline tambem gera `experimental-manifest.json` e `owl-assertion-audit.json` no mesmo diretorio.

@@ -169,7 +169,7 @@ No Jira, Correction vira issue type configurado em JIRA_BUG_ISSUE_TYPE (Bug por 
 
 # Modelo operacional FEED-ON
 
-A aplicacao preserva `ontology/FEED-ON.owl` como ontologia de referencia e cria apenas individuos operacionais em uma copia por job, em `results/job_<id>/FEED-ON-job-<id>-instantiated.owl`. O pipeline e: ingestao CSV/XLSX/XLSM, pseudonimizacao, analise OpenAI ou local, resolucao de alvos, derivacao independente de consequencias, instanciacao OWL, Pellet opcional e preparacao manual para Jira.
+A aplicacao usa `ontology/FEED-ON-v0.2.owl` como ontologia de referencia versionada e cria apenas individuos operacionais em uma copia por job, em `results/job_<id>/FEED-ON-job-<id>-instantiated.owl`. O pipeline e: ingestao CSV/XLSX/XLSM, pseudonimizacao, analise OpenAI ou local, resolucao de alvos, derivacao independente de consequencias, instanciacao OWL, Pellet opcional e preparacao manual para Jira.
 
 Um feedback pode possuir varios `FeedbackTarget` e `FeedbackConsequence`; `inferred_target` e `consequence` permanecem temporariamente como espelhos do item principal para compatibilidade. A resolucao prioriza alvo tecnico, candidato do LLM, texto e lexicos; `Feature.General` somente aparece sem evidencias especificas. Correction, Improvement e Prioritization nao sao exclusivas.
 

@@ -329,28 +329,8 @@ class FeedOnOntologyService:
         lower_message = message.lower()
 
         if "inconsistent" in lower_message:
-            removed_entities = self._remove_inconsistency_candidates()
-            if removed_entities:
-                try:
-                    from owlready2 import sync_reasoner_pellet
-
-                    sync_reasoner_pellet([self.ontology], infer_property_values=True, infer_data_property_values=True, debug=0)
-                    warning = (
-                        "Reasoner detectou inconsistencia e ignorou individuos suspeitos: "
-                        f"{', '.join(removed_entities)}"
-                    )
-                    logger.warning(warning)
-                    return True, warning
-                except Exception as retry_exc:  # pragma: no cover
-                    retry_message = (
-                        "Reasoner permaneceu inconsistente apos remover individuos suspeitos: "
-                        f"{retry_exc}"
-                    )
-                    logger.warning(retry_message)
-                    return False, retry_message
-
             self._log_last_feedback_state("Reasoner inconsistente sem candidato claro")
-            failure = f"Reasoner falhou por ontologia inconsistente: {exc}"
+            failure = f"Reasoner falhou por ontologia inconsistente; nenhuma assercao direta foi removida: {exc}"
             logger.warning(failure)
             return False, failure
 
@@ -512,6 +492,7 @@ class FeedOnOntologyService:
         if not self.loaded:
             return {}
         return {
+            "version": settings.FEED_ON_ONTOLOGY_VERSION,
             "path": str(self.ontology_path),
             "sha256": hashlib.sha256(self.ontology_path.read_bytes()).hexdigest(),
             "classes": len(list(self.ontology.classes())),
