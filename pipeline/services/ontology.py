@@ -159,6 +159,8 @@ class FeedOnOntologyService:
         elicitation_technique: str = "",
         agent_pseudonym: str = "",
         agent_role_type: str = "",
+        resolved_targets=None,
+        derived_consequences=None,
         domain_name: str = "geral",
         create_jira_issue: bool = False,
     ) -> OntologyResult:
@@ -175,6 +177,12 @@ class FeedOnOntologyService:
             target_class, target_instance_name = classify_target(text, domain_name=domain_name)
         inferred_target = target_instance_name
         consequence = self._derive_consequence(intent, text, sentiment_score)
+        target_specs = [
+            (item.target_type, item.target_name) for item in (resolved_targets or [])
+        ] or [(target_class, _simple_name(target_instance_name))]
+        consequence_values = [
+            item.consequence_type for item in (derived_consequences or [])
+        ] or [consequence]
         jira_key = ""
 
         if self.loaded:
@@ -186,6 +194,8 @@ class FeedOnOntologyService:
                     target_class,
                     target_instance_name,
                     consequence,
+                    target_specs,
+                    consequence_values,
                     sentiment_score,
                     elicitation_technique,
                     agent_pseudonym,
@@ -547,6 +557,8 @@ class FeedOnOntologyService:
         target_class_name: str,
         target_instance_name: str,
         consequence: str,
+        target_specs,
+        consequence_values,
         sentiment_score: float | None = None,
         elicitation_technique: str = "",
         agent_pseudonym: str = "",
@@ -574,8 +586,6 @@ class FeedOnOntologyService:
 
         with onto:
             feedback_cls = _class_or_create(onto, "Feedback", Thing, iri_suffix=FEED_ON_CLASS_IRIS["Feedback"])
-            target_cls = _class_or_create(onto, target_class_name, Thing)
-            consequence_cls = _class_or_create(onto, _valid_consequence(consequence), Thing)
             elicitation_class_name = _elicitation_class_name(elicitation_technique)
             elicitation_cls = _class_or_create(
                 onto,
@@ -605,13 +615,19 @@ class FeedOnOntologyService:
             jira_key = _data_property_or_create(onto, "jiraKey", DataProperty)
 
         feedback = feedback_cls(feedback_name)
-        target = _individual_or_create(onto, target_instance_name, target_cls)
+        targets = []
+        for target_type, target_name in target_specs:
+            target_cls = _target_class_for(onto, target_type, Thing)
+            target_individual_name = f"{_safe_name(target_type)}_{_safe_name(target_name)}"
+            targets.append(_individual_or_create(onto, target_individual_name, target_cls))
         intention = _individual_or_create(onto, _intention_individual_name(intent), intention_cls)
-        consequence_individual = _replace_consequence_individual(
-            onto,
-            f"{_valid_consequence(consequence)}_{safe_id}",
-            consequence_cls,
-        )
+        consequence_individuals = []
+        for consequence_value in dict.fromkeys(consequence_values):
+            valid_consequence = _valid_consequence(consequence_value)
+            consequence_cls = _class_or_create(onto, valid_consequence, Thing)
+            consequence_individuals.append(_replace_consequence_individual(
+                onto, f"{valid_consequence}_{safe_id}", consequence_cls,
+            ))
         elicitation = _individual_or_create(onto, _elicitation_individual_name(elicitation_technique), elicitation_cls)
         provider_name = _safe_name(agent_pseudonym or f"Agent_{safe_id}")
         provider = _individual_or_create(onto, provider_name, agent_cls)
@@ -622,8 +638,10 @@ class FeedOnOntologyService:
         _set_data_property(feedback, comment_text, text, replace=True)
         _set_data_property(feedback, is_processed, True, replace=True)
         _set_object_property(feedback, has_intention, intention, replace=True)
-        _set_object_property(feedback, refers_to, target, replace=True)
-        _set_object_property(feedback, indicates, consequence_individual, replace=True)
+        for target in targets:
+            _set_object_property(feedback, refers_to, target)
+        for consequence_individual in consequence_individuals:
+            _set_object_property(feedback, indicates, consequence_individual)
         _set_object_property(feedback, is_elicited_through, elicitation, replace=True)
         _set_object_property(feedback, is_provided_by, provider, replace=True)
 
@@ -633,9 +651,11 @@ class FeedOnOntologyService:
             _set_data_property(sentiment, sentiment_score_prop, XsdFloat(sentiment_score), replace=True)
             _set_object_property(feedback, has_sentiment, sentiment, replace=True)
 
-        _set_object_property(consequence_individual, aims_to_evolve, target, replace=True)
         created_jira_key = ""
-        _set_data_property(consequence_individual, jira_key, "PENDING", replace=True)
+        for consequence_individual in consequence_individuals:
+            for target in targets:
+                _set_object_property(consequence_individual, aims_to_evolve, target)
+            _set_data_property(consequence_individual, jira_key, "PENDING", replace=True)
 
         self.feedback_by_source[source_id] = feedback_name
         if source_id not in self.runtime_sources:

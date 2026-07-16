@@ -6,7 +6,8 @@ from django.test import SimpleTestCase, TestCase, override_settings
 from pipeline.models import DomainLexicon, DomainLexiconTerm, FeedbackAgent, ProcessingJob
 from pipeline.services.csv_reader import iter_feedback
 from pipeline.services.processor import _agent_for
-from pipeline.services.semantics import derive_consequences, normalize_text, resolve_targets
+from pipeline.services.semantics import (DerivedConsequence, ResolvedTarget, derive_consequences,
+                                         normalize_text, resolve_targets)
 from pipeline.services.experiment import initialize_manifest, lexicon_manifest
 from pipeline.services.ontology import FeedOnOntologyService, XsdFloat, _register_xsd_float_datatype
 
@@ -54,6 +55,27 @@ class CsvReaderTests(SimpleTestCase):
 
 
 class OntologyAssertionAuditTests(SimpleTestCase):
+    def test_owl_instantiates_multiple_targets_and_consequences(self):
+        service = FeedOnOntologyService()
+        service.interpret(
+            source_id="multi_test", text="falha urgente; deveria melhorar", intent="Intention_BugReport",
+            technical_target="UIElement.CancelButton", sentiment_score=-0.8,
+            elicitation_technique="ExplicitFeedbackElicitationTechnique", agent_pseudonym="Agent_001",
+            resolved_targets=[
+                ResolvedTarget("UIElement", "CancelButton", "botao cancelar", "system_lexicon", .8),
+                ResolvedTarget("Feature", "CertificateManagement", "certificado", "system_lexicon", .8),
+            ],
+            derived_consequences=[
+                DerivedConsequence("Correction", "technical_problem", .9),
+                DerivedConsequence("Prioritization", "explicit_urgency", .9),
+            ],
+        )
+        feedback = service._feedback_for_source("multi_test")
+        relations = {prop.name: list(prop[feedback]) for prop in feedback.get_properties()}
+        self.assertEqual(len(relations["refersTo"]), 2)
+        self.assertEqual(len(relations["indicates"]), 2)
+        self.assertTrue(all(len(item.aimsToEvolve) == 2 for item in relations["indicates"]))
+
     def test_sentiment_value_is_registered_as_xsd_float(self):
         from owlready2.base import _universal_datatype_2_abbrev_unparser, _universal_abbrev_2_iri
 
