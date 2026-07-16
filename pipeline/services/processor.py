@@ -185,6 +185,9 @@ def _process_chunk(job: ProcessingJob, chunk, ontology: FeedOnOntologyService, l
             technical_target=f"{primary_target.target_type}.{primary_target.target_name}",
             sentiment_score=nlp_result.sentiment_score,
             ai_provider=nlp_result.ai_provider,
+            elicitation_technique=elicitation,
+            agent_pseudonym=agent.pseudonym if agent else "",
+            agent_role_type=agent.role_type if agent else "",
             domain_name=job.domain_name,
         )
         for warning in ontology_result.warnings:

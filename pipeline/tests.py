@@ -8,7 +8,7 @@ from pipeline.services.csv_reader import iter_feedback
 from pipeline.services.processor import _agent_for
 from pipeline.services.semantics import derive_consequences, normalize_text, resolve_targets
 from pipeline.services.experiment import initialize_manifest, lexicon_manifest
-from pipeline.services.ontology import FeedOnOntologyService
+from pipeline.services.ontology import FeedOnOntologyService, XsdFloat, _register_xsd_float_datatype
 
 
 class CsvReaderTests(SimpleTestCase):
@@ -54,6 +54,13 @@ class CsvReaderTests(SimpleTestCase):
 
 
 class OntologyAssertionAuditTests(SimpleTestCase):
+    def test_sentiment_value_is_registered_as_xsd_float(self):
+        from owlready2.base import _universal_datatype_2_abbrev_unparser, _universal_abbrev_2_iri
+
+        _register_xsd_float_datatype()
+        abbreviation, _ = _universal_datatype_2_abbrev_unparser[XsdFloat]
+        self.assertEqual(_universal_abbrev_2_iri[abbreviation], "http://www.w3.org/2001/XMLSchema#float")
+
     def test_assertion_diff_separates_direct_inferred_and_removed(self):
         direct = {
             ("object", "feedback:1", "refersTo", "target:1"),

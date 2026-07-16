@@ -15,6 +15,21 @@ from pipeline.services.llm import CATEGORY_FIELDS, keywords_from_storage, normal
 
 logger = logging.getLogger(__name__)
 
+
+class XsdFloat(float):
+    """Python value serialized explicitly as xsd:float by Owlready2."""
+
+
+def _register_xsd_float_datatype() -> None:
+    from owlready2 import declare_datatype
+
+    declare_datatype(
+        XsdFloat,
+        "http://www.w3.org/2001/XMLSchema#float",
+        XsdFloat,
+        lambda value: format(float(value), ".9g"),
+    )
+
 TARGET_PARENT_RULES = {
     "UIElement.Button.Save": "Feature.Persistence",
     "UIElement.Button.Submit": "Feature.FormSubmission",
@@ -141,6 +156,9 @@ class FeedOnOntologyService:
         technical_target: str,
         sentiment_score: float | None = None,
         ai_provider: str = "",
+        elicitation_technique: str = "",
+        agent_pseudonym: str = "",
+        agent_role_type: str = "",
         domain_name: str = "geral",
         create_jira_issue: bool = False,
     ) -> OntologyResult:
@@ -169,7 +187,9 @@ class FeedOnOntologyService:
                     target_instance_name,
                     consequence,
                     sentiment_score,
-                    ai_provider,
+                    elicitation_technique,
+                    agent_pseudonym,
+                    agent_role_type,
                     create_jira_issue,
                 )
             except Exception as exc:  # pragma: no cover
@@ -528,7 +548,9 @@ class FeedOnOntologyService:
         target_instance_name: str,
         consequence: str,
         sentiment_score: float | None = None,
-        ai_provider: str = "",
+        elicitation_technique: str = "",
+        agent_pseudonym: str = "",
+        agent_role_type: str = "",
         create_jira_issue: bool = False,
     ) -> str:
         from owlready2 import DataProperty, ObjectProperty, Thing
@@ -554,18 +576,19 @@ class FeedOnOntologyService:
             feedback_cls = _class_or_create(onto, "Feedback", Thing, iri_suffix=FEED_ON_CLASS_IRIS["Feedback"])
             target_cls = _class_or_create(onto, target_class_name, Thing)
             consequence_cls = _class_or_create(onto, _valid_consequence(consequence), Thing)
-            elicitation_class_name = _elicitation_class_name(ai_provider)
+            elicitation_class_name = _elicitation_class_name(elicitation_technique)
             elicitation_cls = _class_or_create(
                 onto,
                 elicitation_class_name,
                 Thing,
                 iri_suffix=FEED_ON_CLASS_IRIS[elicitation_class_name],
             )
-            external_agent_cls = _class_or_create(
+            agent_class_name = agent_role_type if agent_role_type in {"InternalAgent", "ExternalAgent"} else "Agent"
+            agent_cls = _class_or_create(
                 onto,
-                "ExternalAgent",
+                agent_class_name,
                 Thing,
-                iri_suffix=FEED_ON_CLASS_IRIS["ExternalAgent"],
+                iri_suffix=FEED_ON_CLASS_IRIS[agent_class_name],
             )
             intention_cls = _class_or_create(onto, "Intention", Thing)
             sentiment_cls = _class_or_create(onto, "Sentiment", Thing, iri_suffix=FEED_ON_CLASS_IRIS["Sentiment"])
@@ -589,8 +612,9 @@ class FeedOnOntologyService:
             f"{_valid_consequence(consequence)}_{safe_id}",
             consequence_cls,
         )
-        elicitation = _individual_or_create(onto, _elicitation_individual_name(ai_provider), elicitation_cls)
-        provider = _individual_or_create(onto, f"ExternalAgent_{safe_id}", external_agent_cls)
+        elicitation = _individual_or_create(onto, _elicitation_individual_name(elicitation_technique), elicitation_cls)
+        provider_name = _safe_name(agent_pseudonym or f"Agent_{safe_id}")
+        provider = _individual_or_create(onto, provider_name, agent_cls)
 
         self._clear_previous_intention_classifications(feedback)
 
@@ -604,8 +628,9 @@ class FeedOnOntologyService:
         _set_object_property(feedback, is_provided_by, provider, replace=True)
 
         if sentiment_score is not None:
+            _register_xsd_float_datatype()
             sentiment = _replace_sentiment_individual(onto, f"Sentiment_{safe_id}", sentiment_cls)
-            _set_data_property(sentiment, sentiment_score_prop, float(sentiment_score), replace=True)
+            _set_data_property(sentiment, sentiment_score_prop, XsdFloat(sentiment_score), replace=True)
             _set_object_property(feedback, has_sentiment, sentiment, replace=True)
 
         _set_object_property(consequence_individual, aims_to_evolve, target, replace=True)
