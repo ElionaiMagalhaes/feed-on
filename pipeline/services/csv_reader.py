@@ -1,4 +1,5 @@
 ﻿import csv
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -21,6 +22,9 @@ TEXT_COLUMNS = (
 ID_COLUMNS = ("id", "feedback_id", "source_id", "codigo", "reviewid", "review_id")
 TARGET_COLUMNS = ("target", "technical_target", "alvo", "alvo_tecnico")
 INTENT_COLUMNS = ("intent", "intention", "intencao")
+AGENT_COLUMNS = ("username", "user", "agent", "agente", "agente/usuario", "agente/usuário", "agente_usuario", "author", "reporter", "provider", "submitter", "creator", "created_by", "email", "usuario", "usuário", "autor", "responsavel", "responsável")
+ROLE_COLUMNS = ("role", "agent_role", "user_role", "perfil", "papel", "tipo_usuario")
+CONTEXT_COLUMNS = ("timestamp", "created_at", "date", "datetime", "device", "browser", "operating_system", "os", "screen", "page", "module", "environment", "source_channel", "location")
 
 
 @dataclass(frozen=True)
@@ -29,6 +33,9 @@ class CsvFeedback:
     text: str
     target: str = ""
     intent: str = ""
+    agent_identifier: str = ""
+    agent_role: str = ""
+    context: dict | None = None
 
 
 @dataclass(frozen=True)
@@ -98,6 +105,10 @@ def inspect_csv(path: Path, limit: int | None = None) -> CsvInspection:
         id_column = _first_existing(normalized, ID_COLUMNS)
         target_column = _first_existing(normalized, TARGET_COLUMNS)
         intent_column = _first_existing(normalized, INTENT_COLUMNS)
+        agent_column = _first_existing(normalized, AGENT_COLUMNS)
+        role_column = _first_existing(normalized, ROLE_COLUMNS)
+        agent_column = _first_existing(normalized, AGENT_COLUMNS)
+        role_column = _first_existing(normalized, ROLE_COLUMNS)
 
         if text_column is None:
             available = ", ".join(fieldnames)
@@ -162,6 +173,8 @@ def iter_feedback(path: Path, limit: int | None = None) -> Iterable[CsvFeedback]
             return
 
         normalized = {_normalize_column(name): name for name in reader.fieldnames}
+        agent_column = _first_existing(normalized, AGENT_COLUMNS)
+        role_column = _first_existing(normalized, ROLE_COLUMNS)
         text_column = _first_existing(normalized, TEXT_COLUMNS)
         if text_column is None:
             available = ", ".join(reader.fieldnames)
@@ -188,6 +201,9 @@ def iter_feedback(path: Path, limit: int | None = None) -> Iterable[CsvFeedback]
                 text=text,
                 target=(row.get(target_column) or "").strip() if target_column else "",
                 intent=(row.get(intent_column) or "").strip() if intent_column else "",
+                agent_identifier=(row.get(agent_column) or "").strip() if agent_column else "",
+                agent_role=(row.get(role_column) or "").strip() if role_column else "",
+                context=_context_from_row(row, normalized),
             )
 
 
@@ -208,6 +224,12 @@ def _inspect_xlsx(path: Path, limit: int | None = None) -> CsvInspection:
         id_column = schema.id_column
         target_column = schema.target_column
         intent_column = schema.intent_column
+        normalized = {_normalize_column(name): name for name in fieldnames}
+        agent_column = _first_existing(normalized, AGENT_COLUMNS)
+        role_column = _first_existing(normalized, ROLE_COLUMNS)
+        normalized = {_normalize_column(name): name for name in fieldnames}
+        agent_column = _first_existing(normalized, AGENT_COLUMNS)
+        role_column = _first_existing(normalized, ROLE_COLUMNS)
         warnings.extend(schema.warnings)
 
         if not id_column:
@@ -263,7 +285,14 @@ def _iter_xlsx_feedback(path: Path, limit: int | None = None) -> Iterable[CsvFee
         rows = worksheet.iter_rows(values_only=True)
         schema = _xlsx_schema(rows)
         fieldnames = schema.fieldnames
+        normalized = {_normalize_column(name): name for name in fieldnames}
+        agent_column = _first_existing(normalized, AGENT_COLUMNS)
+        role_column = _first_existing(normalized, ROLE_COLUMNS)
         text_column = schema.text_column
+        # Dataset anonimizado sem cabecalho: coluna 1 identifica o agente e
+        # coluna 2 contem o feedback. A regra so vale para esse layout inferido.
+        if not agent_column and text_column == "column_2" and "column_1" in fieldnames:
+            agent_column = "column_1"
         id_column = schema.id_column
         target_column = schema.target_column
         intent_column = schema.intent_column
@@ -283,6 +312,9 @@ def _iter_xlsx_feedback(path: Path, limit: int | None = None) -> Iterable[CsvFee
                 text=text,
                 target=values.get(target_column, "").strip() if target_column else "",
                 intent=values.get(intent_column, "").strip() if intent_column else "",
+                agent_identifier=values.get(agent_column, "").strip() if agent_column else "",
+                agent_role=values.get(role_column, "").strip() if role_column else "",
+                context=_context_from_row(values, normalized),
             )
     finally:
         workbook.close()
@@ -354,7 +386,9 @@ def _dialect_with_delimiter(delimiter: str):
 
 
 def _normalize_column(name: str) -> str:
-    return (name or "").lower().strip().replace("-", "_").replace(" ", "_")
+    value = unicodedata.normalize("NFKC", name or "")
+    value = "".join(ch for ch in value if unicodedata.category(ch) != "Cf")
+    return value.lower().strip().replace("-", "_").replace(" ", "_")
 
 
 def _first_existing(columns: dict[str, str], candidates: tuple[str, ...]) -> str | None:
@@ -362,6 +396,17 @@ def _first_existing(columns: dict[str, str], candidates: tuple[str, ...]) -> str
         if candidate in columns:
             return columns[candidate]
     return None
+
+
+def _context_from_row(row: dict, normalized_columns: dict[str, str]) -> dict:
+    aliases = {"date": "timestamp", "datetime": "timestamp", "created_at": "timestamp", "os": "operating_system", "page": "screen"}
+    context = {}
+    for name in CONTEXT_COLUMNS:
+        column = normalized_columns.get(name)
+        value = (row.get(column) or "").strip() if column else ""
+        if value:
+            context[aliases.get(name, name)] = value
+    return context
 
 
 def _is_excel_path(path: Path) -> bool:

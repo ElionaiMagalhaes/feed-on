@@ -32,6 +32,8 @@ def build_executive_report_docx(job: ProcessingJob, feedbacks) -> BytesIO:
     document.add_paragraph(f"Data do processamento: {run_date}")
     document.add_paragraph(f"Lote analisado: Job #{job.id} - {job.original_filename}")
     document.add_paragraph(f"Dominio do software: {job.domain_name or 'geral'}")
+    document.add_paragraph("As classificacoes sao resultados automaticos e devem ser validadas por uma pessoa responsavel.")
+    document.add_paragraph(f"Reasoner Pellet: {'sucesso' if (job.metadata or {}).get('reasoner', {}).get('success') else 'nao executado ou sem sucesso'}")
 
     document.add_heading("Indicadores Globais", level=2)
     _add_indicators_table(document, total_feedbacks, negative_percent, consequence_counts)
@@ -159,10 +161,14 @@ def _fill_header(row, headers: tuple[str, ...]) -> None:
 
 def _consequence_counts(feedbacks) -> dict[str, int]:
     counts = {label: 0 for label in CONSEQUENCE_LABELS}
-    for item in feedbacks.order_by().values("consequence").annotate(total=Count("id")):
-        consequence = item["consequence"] or ""
+    for item in feedbacks.order_by().values("consequences__consequence_type").annotate(total=Count("id", distinct=True)):
+        consequence = item["consequences__consequence_type"] or ""
         if consequence in counts:
             counts[consequence] = item["total"]
+    for item in feedbacks.filter(consequences__isnull=True).order_by().values("consequence").annotate(total=Count("id")):
+        consequence = item["consequence"] or ""
+        if consequence in counts:
+            counts[consequence] += item["total"]
     return counts
 
 

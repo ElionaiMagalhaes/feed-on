@@ -429,7 +429,7 @@ def detailed_results(request: HttpRequest):
     page_obj = None
     rows = []
     if selected_job is not None:
-        feedbacks = _filtered_feedbacks(selected_job, sentiment_filter, consequence_filter).order_by("-id")
+        feedbacks = _filtered_feedbacks(selected_job, sentiment_filter, consequence_filter).select_related("agent").prefetch_related("targets", "consequences").order_by("-id")
         paginator = Paginator(feedbacks, 50)
         page_obj = paginator.get_page(request.GET.get("page") or 1)
         rows = list(page_obj.object_list)
@@ -471,6 +471,9 @@ def export_csv(request: HttpRequest):
             "Alvo IA",
             "Alvo Inferido",
             "Consequencia",
+            "Agente",
+            "Tecnica de Elicitacao",
+            "Provedor da Analise",
             "Link do Jira",
         ]
     )
@@ -482,8 +485,11 @@ def export_csv(request: HttpRequest):
                 record.text,
                 _format_sentiment(record.sentiment_score),
                 record.target_candidate,
-                _semantic_inferred_target(ontology, record),
-                record.consequence,
+                "|".join(f"{item.target_type}.{item.target_name}" for item in record.targets.all()) or _semantic_inferred_target(ontology, record),
+                "|".join(item.consequence_type for item in record.consequences.all()) or record.consequence,
+                record.agent.pseudonym if record.agent else "",
+                record.elicitation_technique,
+                record.ai_provider,
                 _jira_issue_url(record.jira_key),
             ]
         )
@@ -648,7 +654,7 @@ def _filtered_feedbacks(job: ProcessingJob, sentiment_filter: str, consequence_f
         feedbacks = feedbacks.filter(sentiment_score__gt=POSITIVE_THRESHOLD)
 
     if consequence_filter != "all":
-        feedbacks = feedbacks.filter(consequence=consequence_filter)
+        feedbacks = feedbacks.filter(Q(consequences__consequence_type=consequence_filter) | Q(consequence=consequence_filter)).distinct()
 
     return feedbacks
 
@@ -668,10 +674,13 @@ def _build_dashboard_snapshot(
     ).count()
 
     consequence_counts = {label: 0 for label in ("Correction", "Improvement", "Prioritization")}
-    for item in feedbacks.values("consequence").annotate(total=Count("id")):
-        consequence = item["consequence"] or ""
+    for item in feedbacks.values("consequences__consequence_type").annotate(total=Count("id", distinct=True)):
+        consequence = item["consequences__consequence_type"] or ""
         if consequence in consequence_counts:
             consequence_counts[consequence] = item["total"]
+    for item in feedbacks.filter(consequences__isnull=True).values("consequence").annotate(total=Count("id")):
+        if item["consequence"] in consequence_counts:
+            consequence_counts[item["consequence"]] += item["total"]
 
     if total_feedbacks:
         consequence_distribution = [round((value / total_feedbacks) * 100, 1) for value in consequence_counts.values()]
@@ -720,6 +729,9 @@ def _build_dashboard_snapshot(
             "total_feedbacks": total_feedbacks,
             "negative_percent": negative_percent,
             "jira_tickets": jira_tickets,
+            "agents": job.agents.count(),
+            "with_context": feedbacks.filter(context__isnull=False).count(),
+            "reasoner": (job.metadata or {}).get("reasoner", {}),
         },
         "charts": {
             "consequence_distribution": {

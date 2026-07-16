@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
+APPLICATION_VERSION = os.getenv("APPLICATION_VERSION", "1.1.0")
 
 
 def env_bool(name: str, default: bool = False) -> bool:
@@ -220,10 +221,16 @@ CELERY_TASK_ALWAYS_EAGER = env_bool("CELERY_TASK_ALWAYS_EAGER", False)
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = int(os.getenv("CELERY_TASK_TIME_LIMIT", "7200"))
 
-FEED_ON_ONTOLOGY_PATH = os.getenv("FEED_ON_ONTOLOGY_PATH", "ontology/FEED-ON.ofn")
+FEED_ON_ONTOLOGY_PATH = os.getenv("FEED_ON_ONTOLOGY_PATH", "ontology/FEED-ON.owl")
 FEED_ON_RUN_REASONER = env_bool("FEED_ON_RUN_REASONER", True)
 FEED_ON_REASONER = os.getenv("FEED_ON_REASONER", "pellet")
 FEED_ON_LEXICON_REFRESH_EXISTING = env_bool("FEED_ON_LEXICON_REFRESH_EXISTING", False)
+FEED_ON_HOTSPOT_MIN_COUNT = int(os.getenv("FEED_ON_HOTSPOT_MIN_COUNT", "3"))
+FEED_ON_PRIORITY_KEYWORDS = tuple(item.strip() for item in os.getenv("FEED_ON_PRIORITY_KEYWORDS", "urgente,prioridade,crítico,imediato").split(",") if item.strip())
+FEED_ON_REASONER_FAIL_FAST = env_bool("FEED_ON_REASONER_FAIL_FAST", False)
+FEED_ON_AGENT_HASH_SALT = os.getenv("FEED_ON_AGENT_HASH_SALT", SECRET_KEY)
+LEXICON_PROMPT_VERSION = os.getenv("LEXICON_PROMPT_VERSION", "feed-on-lexicon-v1")
+SEMANTIC_EXTRACTION_PROMPT_VERSION = os.getenv("SEMANTIC_EXTRACTION_PROMPT_VERSION", "feed-on-semantic-v1")
 FEEDBACK_CHUNK_SIZE = int(os.getenv("FEEDBACK_CHUNK_SIZE", "500"))
 MAX_UPLOAD_SIZE_MB = int(os.getenv("MAX_UPLOAD_SIZE_MB", "200"))
 

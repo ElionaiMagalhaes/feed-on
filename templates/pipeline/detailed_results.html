@@ -76,8 +76,8 @@
                 <td class="cell-text">{{ row.text }}</td>
                 <td class="cell-sentiment">{% if row.sentiment_score == None %}-{% else %}{{ row.sentiment_score|floatformat:2 }}{% endif %}</td>
                 <td class="cell-compact">{{ row.target_candidate|default:'-' }}</td>
-                <td class="cell-compact">{{ row.inferred_target|default:row.technical_target|default:'-' }}</td>
-                <td class="cell-compact">{{ row.consequence|default:'-' }}</td>
+                <td class="cell-compact">{% for target in row.targets.all %}<div>{{ target.target_type }}.{{ target.target_name }} <small>({{ target.source }})</small></div>{% empty %}{{ row.inferred_target|default:row.technical_target|default:'-' }}{% endfor %}</td>
+                <td class="cell-compact">{% for consequence in row.consequences.all %}<div>{{ consequence.consequence_type }} <small>({{ consequence.derivation_rule }})</small></div>{% empty %}{{ row.consequence|default:'-' }}{% endfor %}</td>
                 <td class="cell-jira">
                   {% if row.jira_key %}
                     {% if row.jira_key|slice:':4' == 'http' %}

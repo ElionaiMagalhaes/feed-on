@@ -105,6 +105,24 @@ class DomainLexicon(models.Model):
         return self.domain_name
 
 
+class DomainLexiconTerm(models.Model):
+    lexicon = models.ForeignKey(DomainLexicon, related_name="terms", on_delete=models.CASCADE)
+    expression = models.CharField(max_length=220)
+    normalized_expression = models.CharField(max_length=220)
+    canonical_name = models.CharField(max_length=220)
+    target_type = models.CharField(max_length=80)
+    language = models.CharField(max_length=20, default="pt-BR")
+    source = models.CharField(max_length=80, default="domain_lexicon")
+    active = models.BooleanField(default=True)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-active", "-normalized_expression"]
+        constraints = [
+            models.UniqueConstraint(fields=["lexicon", "normalized_expression", "target_type"], name="pipeline_unique_lexicon_term"),
+        ]
+
+
 class FeedbackRecord(models.Model):
     class JiraStatus(models.TextChoices):
         PENDING = "pending", "Pendente"
@@ -122,6 +140,8 @@ class FeedbackRecord(models.Model):
     target_candidate = models.CharField(max_length=160, blank=True)
     ai_raw = models.JSONField(default=dict, blank=True)
     technical_target = models.CharField(max_length=160, blank=True)
+    agent = models.ForeignKey("FeedbackAgent", related_name="feedbacks", on_delete=models.SET_NULL, null=True, blank=True)
+    elicitation_technique = models.CharField(max_length=80, blank=True)
     inferred_target = models.CharField(max_length=220, blank=True)
     consequence = models.CharField(max_length=80, blank=True)
     jira_payload = models.JSONField(default=dict, blank=True)
@@ -140,6 +160,67 @@ class FeedbackRecord(models.Model):
 
     def __str__(self) -> str:
         return f"{self.source_id}: {self.text[:60]}"
+
+    @property
+    def analysis_provider(self) -> str:
+        return self.ai_provider
+
+
+class FeedbackAgent(models.Model):
+    job = models.ForeignKey(ProcessingJob, related_name="agents", on_delete=models.CASCADE)
+    pseudonym = models.CharField(max_length=120)
+    source_hash = models.CharField(max_length=128)
+    role_type = models.CharField(max_length=80, blank=True)
+    role_source = models.CharField(max_length=80, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["job", "source_hash"], name="pipeline_unique_job_agent")]
+
+
+class FeedbackTarget(models.Model):
+    feedback = models.ForeignKey(FeedbackRecord, related_name="targets", on_delete=models.CASCADE)
+    target_type = models.CharField(max_length=80)
+    target_name = models.CharField(max_length=220)
+    matched_expression = models.CharField(max_length=220, blank=True)
+    source = models.CharField(max_length=80, blank=True)
+    confidence = models.FloatField(null=True, blank=True)
+    is_primary = models.BooleanField(default=False)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["feedback", "target_type", "target_name"], name="pipeline_unique_feedback_target"),
+            models.UniqueConstraint(fields=["feedback"], condition=models.Q(is_primary=True), name="pipeline_one_primary_target"),
+        ]
+
+
+class FeedbackConsequence(models.Model):
+    feedback = models.ForeignKey(FeedbackRecord, related_name="consequences", on_delete=models.CASCADE)
+    consequence_type = models.CharField(max_length=80)
+    derivation_rule = models.CharField(max_length=160, blank=True)
+    confidence = models.FloatField(null=True, blank=True)
+    is_primary = models.BooleanField(default=False)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["feedback", "consequence_type"], name="pipeline_unique_feedback_consequence"),
+            models.UniqueConstraint(fields=["feedback"], condition=models.Q(is_primary=True), name="pipeline_one_primary_consequence"),
+        ]
+
+
+class FeedbackContext(models.Model):
+    feedback = models.OneToOneField(FeedbackRecord, related_name="context", on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(null=True, blank=True)
+    device = models.CharField(max_length=120, blank=True)
+    browser = models.CharField(max_length=120, blank=True)
+    operating_system = models.CharField(max_length=120, blank=True)
+    screen = models.CharField(max_length=160, blank=True)
+    module = models.CharField(max_length=160, blank=True)
+    environment = models.CharField(max_length=80, blank=True)
+    source_channel = models.CharField(max_length=120, blank=True)
+    metadata = models.JSONField(default=dict, blank=True)
 
 
 class PipelineEvent(models.Model):

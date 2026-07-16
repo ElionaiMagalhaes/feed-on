@@ -2,6 +2,8 @@
 import re
 import unicodedata
 import uuid
+import hashlib
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -109,6 +111,7 @@ class FeedOnOntologyService:
         self.runtime_sources: list[str] = []
         self.last_source_id = ""
         self.current_job_id = ""
+        self.assertion_audit = {}
         self._load()
 
     def prepare_for_job(self, job_id: int | str) -> int:
@@ -145,7 +148,13 @@ class FeedOnOntologyService:
         if self.load_warning:
             warnings.append(self.load_warning)
 
-        target_class, target_instance_name = classify_target(text, domain_name=domain_name)
+        if (technical_target or "").strip():
+            parts = re.split(r"[._:]", technical_target.strip(), maxsplit=1)
+            target_class = parts[0] or "Feature"
+            target_name = parts[1] if len(parts) > 1 else parts[0]
+            target_instance_name = f"{target_class}_{_safe_name(target_name)}"
+        else:
+            target_class, target_instance_name = classify_target(text, domain_name=domain_name)
         inferred_target = target_instance_name
         consequence = self._derive_consequence(intent, text, sentiment_score)
         jira_key = ""
@@ -186,21 +195,96 @@ class FeedOnOntologyService:
         if not self.loaded or not settings.FEED_ON_RUN_REASONER:
             return False, ""
 
+        before = self._assertion_snapshot()
         try:
             if settings.FEED_ON_REASONER.lower() != "pellet":
                 return False, "Reasoner diferente de Pellet configurado; etapa pulada."
 
             from owlready2 import sync_reasoner_pellet
 
-            sync_reasoner_pellet(infer_property_values=True, infer_data_property_values=True, debug=0)
+            sync_reasoner_pellet([self.ontology], infer_property_values=True, infer_data_property_values=True, debug=0)
+            after = self._assertion_snapshot()
+            self.assertion_audit = self._compare_assertions(before, after)
             return True, ""
         except Exception as exc:  # pragma: no cover
-            return self._handle_reasoner_exception(exc)
+            result = self._handle_reasoner_exception(exc)
+            after = self._assertion_snapshot()
+            self.assertion_audit = self._compare_assertions(before, after)
+            return result
 
-    def save(self) -> None:
+    def _assertion_snapshot(self) -> set[tuple[str, str, str, str]]:
+        """Return sanitized assertions in the subgraph instantiated for this job."""
+        if not self.ontology:
+            return set()
+        scope = set()
+        frontier = [self._feedback_for_source(source) for source in self.runtime_sources]
+        frontier = [item for item in frontier if item is not None]
+        for _ in range(3):
+            next_frontier = []
+            for individual in frontier:
+                if individual in scope:
+                    continue
+                scope.add(individual)
+                for prop in individual.get_properties():
+                    if getattr(prop, "is_a", None) is None:
+                        continue
+                    try:
+                        values = list(prop[individual])
+                    except Exception:
+                        continue
+                    next_frontier.extend(value for value in values if hasattr(value, "iri"))
+            frontier = next_frontier
+
+        assertions = set()
+        for individual in scope:
+            subject = getattr(individual, "iri", getattr(individual, "name", str(individual)))
+            for cls in getattr(individual, "is_a", []):
+                if hasattr(cls, "iri"):
+                    assertions.add(("class", subject, "rdf:type", cls.iri))
+            for prop in individual.get_properties():
+                predicate = getattr(prop, "iri", getattr(prop, "name", str(prop)))
+                try:
+                    values = list(prop[individual])
+                except Exception:
+                    continue
+                for value in values:
+                    if hasattr(value, "iri"):
+                        assertions.add(("object", subject, predicate, value.iri))
+                    else:
+                        literal = json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+                        hashed = hashlib.sha256(literal.encode("utf-8")).hexdigest()
+                        assertions.add(("data", subject, predicate, f"sha256:{hashed}"))
+        return assertions
+
+    @staticmethod
+    def _compare_assertions(before, after) -> dict:
+        inferred = sorted(after - before)
+        removed = sorted(before - after)
+        direct = sorted(before)
+        return {
+            "scope": "job_runtime_subgraph",
+            "literal_values": "sha256_only",
+            "assertions_before": len(before),
+            "assertions_after": len(after),
+            "direct_assertions": len(direct),
+            "inferred_assertions": len(inferred),
+            "removed_assertions": len(removed),
+            "direct_by_kind": _count_assertion_kinds(direct),
+            "inferred_by_kind": _count_assertion_kinds(inferred),
+            "removed_by_kind": _count_assertion_kinds(removed),
+            "direct": [_assertion_dict(item) for item in direct],
+            "inferred": [_assertion_dict(item) for item in inferred],
+            "removed": [_assertion_dict(item) for item in removed],
+        }
+
+    def save(self) -> Path | None:
         if not self.loaded or self.ontology is None or self.ontology_path is None:
-            return
-        self.ontology.save(file=str(self.ontology_path))
+            return None
+        output_dir = settings.BASE_DIR / "results" / f"job_{self.current_job_id or 'unknown'}"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / f"FEED-ON-job-{self.current_job_id or 'unknown'}-instantiated.owl"
+        self.ontology.save(file=str(output_path))
+        return output_path
 
     def inferred_target_for(self, source_id: str) -> str:
         if self.ontology is None:
@@ -250,7 +334,7 @@ class FeedOnOntologyService:
                 try:
                     from owlready2 import sync_reasoner_pellet
 
-                    sync_reasoner_pellet(infer_property_values=True, infer_data_property_values=True, debug=0)
+                    sync_reasoner_pellet([self.ontology], infer_property_values=True, infer_data_property_values=True, debug=0)
                     warning = (
                         "Reasoner detectou inconsistencia e ignorou individuos suspeitos: "
                         f"{', '.join(removed_entities)}"
@@ -401,6 +485,7 @@ class FeedOnOntologyService:
             except Exception:
                 self.ontology = self.world.get_ontology(self.ontology_path.as_uri()).load()
             self.loaded = True
+            self._validate_required_entities()
         except Exception as exc:  # pragma: no cover
             self._load_ofn_assertions()
             if self.ofn_loaded:
@@ -414,6 +499,26 @@ class FeedOnOntologyService:
                     "usando inferencia deterministica."
                 )
             logger.warning(self.load_warning)
+
+    def _validate_required_entities(self) -> None:
+        required_classes = {"Feedback", "Target", "ConsequenceExpected"}
+        required_properties = {"refersTo", "indicates", "aimsToEvolve", "isProvidedBy"}
+        classes = {item.name.lstrip(":") for item in self.ontology.classes()}
+        properties = {item.name for item in self.ontology.object_properties()}
+        if not required_classes <= classes or not required_properties <= properties:
+            raise ValueError("The configured OWL file does not contain the required FEED-ON entities.")
+
+    def metrics(self) -> dict:
+        if not self.loaded:
+            return {}
+        return {
+            "path": str(self.ontology_path),
+            "sha256": hashlib.sha256(self.ontology_path.read_bytes()).hexdigest(),
+            "classes": len(list(self.ontology.classes())),
+            "object_properties": len(list(self.ontology.object_properties())),
+            "data_properties": len(list(self.ontology.data_properties())),
+            "individuals": len(list(self.ontology.individuals())),
+        }
 
     def _load_ofn_assertions(self) -> None:
         if self.ontology_path is None or self.ontology_path.suffix.lower() != ".ofn":
@@ -749,3 +854,15 @@ def _simple_name(value: str) -> str:
 
 def _display_name(value: str) -> str:
     return value.replace("_", ".")
+
+
+def _count_assertion_kinds(assertions) -> dict[str, int]:
+    counts = {"class": 0, "object": 0, "data": 0}
+    for kind, *_ in assertions:
+        counts[kind] = counts.get(kind, 0) + 1
+    return counts
+
+
+def _assertion_dict(assertion) -> dict[str, str]:
+    kind, subject, predicate, value = assertion
+    return {"kind": kind, "subject": subject, "predicate": predicate, "value": value}

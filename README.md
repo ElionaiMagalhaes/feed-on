@@ -167,3 +167,20 @@ A exportacao DOCX gera um relatorio executivo com tabelas para indicadores globa
 
 No Jira, Correction vira issue type configurado em JIRA_BUG_ISSUE_TYPE (Bug por padrao). Improvement vira JIRA_IMPROVEMENT_ISSUE_TYPE (Story por padrao).
 
+# Modelo operacional FEED-ON
+
+A aplicacao preserva `ontology/FEED-ON.owl` como ontologia de referencia e cria apenas individuos operacionais em uma copia por job, em `results/job_<id>/FEED-ON-job-<id>-instantiated.owl`. O pipeline e: ingestao CSV/XLSX/XLSM, pseudonimizacao, analise OpenAI ou local, resolucao de alvos, derivacao independente de consequencias, instanciacao OWL, Pellet opcional e preparacao manual para Jira.
+
+Um feedback pode possuir varios `FeedbackTarget` e `FeedbackConsequence`; `inferred_target` e `consequence` permanecem temporariamente como espelhos do item principal para compatibilidade. A resolucao prioriza alvo tecnico, candidato do LLM, texto e lexicos; `Feature.General` somente aparece sem evidencias especificas. Correction, Improvement e Prioritization nao sao exclusivas.
+
+Identificadores de pessoas sao normalizados e convertidos em hash com `FEED_ON_AGENT_HASH_SALT`; somente pseudonimos por job sao expostos. Papeis desconhecidos permanecem `Agent`, sem inferencia automatica de agente externo. `ai_provider` descreve quem analisou; `elicitation_technique` descreve a origem do feedback. Contexto de ocorrencia somente e criado quando a fonte fornece dados reais.
+
+O `ProcessingJob.metadata` registra ontologia, reasoner e metricas do experimento sem chaves, tokens, nomes ou e-mails. Pellet usa o `World`/ontologia carregado e `FEED_ON_REASONER_FAIL_FAST=false` preserva resultados deterministicos em falhas.
+
+Cada job concluido grava `experimental-manifest.json`, `owl-assertion-audit.json` e o OWL instanciado em `results/job_<id>/`. A auditoria separa as assercoes diretas (snapshot anterior ao Pellet) das inferidas (diferenca posterior ao Pellet); valores literais aparecem apenas como hashes SHA-256.
+
+## Testes e novo experimento
+
+Execute `python manage.py test pipeline` e `python manage.py check`. Para um experimento, configure `.env`, aplique `python manage.py migrate`, confirme Jira dry-run, envie um dataset anonimizado pela interface e preserve o manifesto e o OWL gerados. Consulte `docs/EXPERIMENT_EXECUTION.md`.
+
+Limitacoes: sinonimos dependem do lexico congelado; papeis e contexto nao sao inferidos sem metadados; classificacoes automaticas exigem validacao humana; Pellet requer Java compativel.

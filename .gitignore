@@ -21,5 +21,8 @@ celerybeat-schedule
 .mypy_cache/
 .ruff_cache/
 
+# Local snapshots generated during development; not experimental evidence.
+pipeline/services/__init__.zip
+
 .vscode/
 .idea/

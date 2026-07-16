@@ -19,7 +19,13 @@ class JiraConfig:
 
 
 def build_jira_payload(record) -> dict:
-    summary = f"[FEED-ON] {record.consequence or 'Feedback'} - {record.inferred_target or record.technical_target}"
+    consequences = list(record.consequences.all()) if record.pk else []
+    targets = list(record.targets.all()) if record.pk else []
+    primary_consequence = next((item for item in consequences if item.is_primary), consequences[0] if consequences else None)
+    primary_target = next((item for item in targets if item.is_primary), targets[0] if targets else None)
+    consequence = primary_consequence.consequence_type if primary_consequence else record.consequence
+    target = f"{primary_target.target_type}.{primary_target.target_name}" if primary_target else (record.inferred_target or record.technical_target)
+    summary = f"[FEED-ON] {consequence or 'Feedback'} - {target}"
     description = (
         f"Feedback ID: {record.source_id}\n\n"
         f"Texto original:\n{record.text}\n\n"
@@ -28,15 +34,19 @@ def build_jira_payload(record) -> dict:
         f"Intencao FEED-ON: {record.intent}\n"
         f"Alvo candidato IA: {record.target_candidate or '-'}\n"
         f"Alvo tecnico inicial: {record.technical_target}\n"
-        f"Alvo inferido: {record.inferred_target}\n"
-        f"Consequencia derivada: {record.consequence}\n"
+        f"Alvo principal: {target}\n"
+        f"Alvos secundarios: {' | '.join(f'{x.target_type}.{x.target_name}' for x in targets if x is not primary_target) or '-'}\n"
+        f"Consequencia principal: {consequence}\n"
+        f"Consequencias adicionais: {' | '.join(x.consequence_type for x in consequences if x is not primary_consequence) or '-'}\n"
+        f"Agente: {record.agent.pseudonym if record.agent else '-'}\n"
+        f"Source ID: {record.source_id}; Job ID: {record.job_id}\n"
     )
     return {
         "fields": {
             "project": {"key": settings.JIRA_PROJECT_KEY},
             "summary": summary[:255],
             "description": description,
-            "labels": ["feed-on", _label(record.consequence), _label(record.intent)],
+            "labels": ["feed-on", _label(consequence), _label(record.intent)] + [_label(x.consequence_type) for x in consequences if x is not primary_consequence] + [_label(x.target_name) for x in targets if x is not primary_target],
         }
     }
 
