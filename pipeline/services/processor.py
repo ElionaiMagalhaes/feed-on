@@ -166,7 +166,8 @@ def _process_chunk(job: ProcessingJob, chunk, ontology: FeedOnOntologyService, l
             source_id=csv_feedback.source_id,
             ordinal=job.processed_rows + len(records_to_create) + 1,
         )
-        targets = resolve_targets(csv_feedback.target, nlp_result.target_candidate, csv_feedback.text, lexicon)
+        typed_candidate = f"{nlp_result.target_type}.{nlp_result.target_candidate}"
+        targets = resolve_targets(csv_feedback.target, typed_candidate, csv_feedback.text, lexicon)
         for target in targets:
             key = f"{target.target_type}.{target.target_name}"
             target_frequencies[key] = target_frequencies.get(key, 0) + 1

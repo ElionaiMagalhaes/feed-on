@@ -37,3 +37,9 @@ O reasoner e executado uma unica vez, depois de todos os lotes terem sido instan
 - `*_by_kind`: totais separados em classe, propriedade de objeto e propriedade de dados.
 
 Literais nao sao copiados para a auditoria: somente seu SHA-256 e preservado. IRIs de classes, propriedades e individuos operacionais permanecem para permitir rastreabilidade. Os totais e o caminho do arquivo tambem ficam em `ProcessingJob.metadata.reasoner` e no manifesto experimental.
+
+## Tipagem e canonicalizacao de alvos
+
+A extracao `feed-on-semantic-v2-target-typing` retorna separadamente o nome candidato e um tipo restrito a `Feature`, `UIElement`, `Requirement`, `Process`, `DataItem`, `QualityAttribute` ou `Target`. `Target` indica resolucao nominal sem evidencia suficiente para especializacao ontologica. O mapa `feed-on-target-map-v1` unifica, antes dos hotspots, equivalencias como button/botao, screen/tela, report/relatorio e certificate/certificado.
+
+`Intention_BugReport` gera `Correction` pela regra `bug_report_intention`; Correction, Improvement e Prioritization continuam independentes e podem coexistir.

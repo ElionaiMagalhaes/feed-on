@@ -10,6 +10,7 @@ from pipeline.services.semantics import (DerivedConsequence, ResolvedTarget, der
                                          normalize_text, resolve_targets)
 from pipeline.services.experiment import initialize_manifest, lexicon_manifest
 from pipeline.services.ontology import FeedOnOntologyService, XsdFloat, _register_xsd_float_datatype
+from pipeline.services.nlp import _normalize_target_type
 
 
 class CsvReaderTests(SimpleTestCase):
@@ -153,6 +154,21 @@ class SemanticTests(TestCase):
     def test_negative_without_problem_is_not_correction(self):
         values = derive_consequences("Report", "", -.9, "Não gostei", [], {}, 3)
         self.assertNotIn("Correction", [x.consequence_type for x in values])
+
+    def test_bug_report_intention_always_generates_correction(self):
+        values = derive_consequences("Report", "Intention_BugReport", .2, "Nao aparece", [], {}, 3)
+        correction = next(item for item in values if item.consequence_type == "Correction")
+        self.assertEqual(correction.derivation_rule, "bug_report_intention")
+
+    def test_bilingual_synonyms_are_canonicalized_before_deduplication(self):
+        targets = resolve_targets("", "UIElement.Button", "O botão da tela falhou", self.lexicon)
+        names = [(item.target_type, item.target_name) for item in targets]
+        self.assertEqual(names.count(("UIElement", "Button")), 1)
+        self.assertIn(("UIElement", "Screen"), names)
+
+    def test_target_type_is_restricted_to_feed_on_categories(self):
+        self.assertEqual(_normalize_target_type("Process"), "Process")
+        self.assertEqual(_normalize_target_type("unknown custom type"), "Target")
 
 
 @override_settings(FEED_ON_AGENT_HASH_SALT="test-salt")

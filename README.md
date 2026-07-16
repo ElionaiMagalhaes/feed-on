@@ -173,6 +173,8 @@ A aplicacao usa `ontology/FEED-ON-v0.2.owl` como ontologia de referencia version
 
 Um feedback pode possuir varios `FeedbackTarget` e `FeedbackConsequence`; `inferred_target` e `consequence` permanecem temporariamente como espelhos do item principal para compatibilidade. A resolucao prioriza alvo tecnico, candidato do LLM, texto e lexicos; `Feature.General` somente aparece sem evidencias especificas. Correction, Improvement e Prioritization nao sao exclusivas.
 
+A extracao `feed-on-semantic-v2-target-typing` separa resolucao nominal de tipagem ontologica. Tipos sem evidencia permanecem `Target`; sinonimos PT/EN sao canonicalizados pelo mapa `feed-on-target-map-v1` antes da contagem de hotspots. `Intention_BugReport` implica Correction sem bloquear Improvement ou Prioritization.
+
 Identificadores de pessoas sao normalizados e convertidos em hash com `FEED_ON_AGENT_HASH_SALT`; somente pseudonimos por job sao expostos. Papeis desconhecidos permanecem `Agent`, sem inferencia automatica de agente externo. `ai_provider` descreve quem analisou; `elicitation_technique` descreve a origem do feedback. Contexto de ocorrencia somente e criado quando a fonte fornece dados reais.
 
 O `ProcessingJob.metadata` registra ontologia, reasoner e metricas do experimento sem chaves, tokens, nomes ou e-mails. Pellet usa o `World`/ontologia carregado e `FEED_ON_REASONER_FAIL_FAST=false` preserva resultados deterministicos em falhas.

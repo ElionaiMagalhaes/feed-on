@@ -55,6 +55,7 @@ def initialize_manifest(job, dataset_path: Path) -> dict:
             "returned_models": [],
             "lexicon_prompt_version": settings.LEXICON_PROMPT_VERSION,
             "semantic_extraction_prompt_version": settings.SEMANTIC_EXTRACTION_PROMPT_VERSION,
+            "canonical_target_map_version": settings.CANONICAL_TARGET_MAP_VERSION,
             "feedback_chunk_size": settings.FEEDBACK_CHUNK_SIZE,
             "api_calls": 0,
             "records_openai": 0,

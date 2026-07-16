@@ -14,6 +14,7 @@ class FeedbackAiSchema(BaseModel):
     intention: str = Field(description="Report ou Suggestion")
     sentiment_score: float = Field(description="Valor entre -1.0 e 1.0")
     target_candidate: str = Field(description="Componente de software mencionado")
+    target_type: str = Field(description="Feature, UIElement, Requirement, Process, DataItem, QualityAttribute ou Target")
 
 
 class FeedbackAiBatchItem(BaseModel):
@@ -21,6 +22,7 @@ class FeedbackAiBatchItem(BaseModel):
     intention: str = Field(description="Report ou Suggestion")
     sentiment_score: float = Field(description="Valor entre -1.0 e 1.0")
     target_candidate: str = Field(description="Componente de software mencionado")
+    target_type: str = Field(description="Feature, UIElement, Requirement, Process, DataItem, QualityAttribute ou Target")
 
 
 class FeedbackAiBatchSchema(BaseModel):
@@ -32,6 +34,7 @@ class AiAnalysis:
     sentiment_score: float
     intention: str
     target_candidate: str
+    target_type: str
     provider: str
     raw: dict
 
@@ -43,6 +46,7 @@ class NlpResult:
     sentiment_score: float | None = None
     ai_intent: str = ""
     target_candidate: str = ""
+    target_type: str = "Target"
     ai_provider: str = ""
     ai_raw: dict | None = None
 
@@ -95,7 +99,8 @@ def extract_feedback_semantics_batch(feedbacks: Sequence) -> list[NlpResult]:
         provided_target = getattr(feedback, "target", "") or ""
         normalized = _normalize(text)
         ai_analysis = analyses[index]
-        technical_target = provided_target.strip() or _target_from_candidate(ai_analysis.target_candidate) or _infer_target(normalized)
+        typed_candidate = f"{ai_analysis.target_type}.{ai_analysis.target_candidate}"
+        technical_target = provided_target.strip() or typed_candidate or _infer_target(normalized)
         feed_on_intention = map_to_feed_on_intention(ai_analysis.intention, ai_analysis.sentiment_score)
         results.append(
             NlpResult(
@@ -104,6 +109,7 @@ def extract_feedback_semantics_batch(feedbacks: Sequence) -> list[NlpResult]:
                 sentiment_score=ai_analysis.sentiment_score,
                 ai_intent=ai_analysis.intention,
                 target_candidate=ai_analysis.target_candidate,
+                target_type=ai_analysis.target_type,
                 ai_provider=ai_analysis.provider,
                 ai_raw=ai_analysis.raw,
             )
@@ -136,7 +142,9 @@ def analyze_feedback_batch_with_ai(texts: Sequence[str]) -> list[AiAnalysis] | N
                         "o usuario relata problema, falha, bug ou comportamento observado. A intention deve ser "
                         "Suggestion quando o usuario sugere melhoria, novo recurso ou preferencia. O sentiment_score "
                         "deve variar de -1.0 a 1.0. O target_candidate deve ser o componente de software mencionado, "
-                        "como Login, Video Player, Search, Payment, Button ou General."
+                        "no idioma do feedback. target_type deve ser exatamente Feature, UIElement, Requirement, "
+                        "Process, DataItem, QualityAttribute ou Target. Use Target quando nao houver evidencia "
+                        "suficiente para uma especializacao ontologica."
                     ),
                 },
                 {"role": "user", "content": str(rows)},
@@ -156,6 +164,7 @@ def analyze_feedback_batch_with_ai(texts: Sequence[str]) -> list[AiAnalysis] | N
                     sentiment_score=_clamp_sentiment(item.sentiment_score),
                     intention=_normalize_ai_intention(item.intention),
                     target_candidate=(item.target_candidate or "General").strip() or "General",
+                    target_type=_normalize_target_type(item.target_type),
                     provider="openai",
                     raw={"model": settings.OPENAI_MODEL, "response_id": response.id, "batch_size": len(texts)},
                 )
@@ -192,6 +201,7 @@ def _analysis_from_provided_intent(provided_intent: str, text: str) -> AiAnalysi
         sentiment_score=_fallback_sentiment(text),
         intention=intention,
         target_candidate=target_candidate,
+        target_type=_target_type_from_value(_infer_target(text)),
         provider="csv",
         raw={"provided_intent": provided_intent},
     )
@@ -209,6 +219,7 @@ def _fallback_analysis(text: str) -> AiAnalysis:
         sentiment_score=_fallback_sentiment(text),
         intention=intention,
         target_candidate=_display_target(target),
+        target_type=_target_type_from_value(target),
         provider="local",
         raw={},
     )
@@ -255,6 +266,17 @@ def _normalize_ai_intention(value: object) -> str:
     if raw == "suggestion":
         return "Suggestion"
     return "Suggestion"
+
+
+def _normalize_target_type(value: object) -> str:
+    allowed = {"feature": "Feature", "uielement": "UIElement", "requirement": "Requirement", "process": "Process", "dataitem": "DataItem", "qualityattribute": "QualityAttribute", "target": "Target"}
+    key = re.sub(r"[^a-z]", "", str(value or "").lower())
+    return allowed.get(key, "Target")
+
+
+def _target_type_from_value(value: str) -> str:
+    prefix = re.split(r"[._:]", value or "", maxsplit=1)[0]
+    return _normalize_target_type(prefix)
 
 
 def _clamp_sentiment(value: object) -> float:

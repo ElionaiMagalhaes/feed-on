@@ -39,6 +39,18 @@ GENERAL_TERMS = (
     ("usabilidade", "QualityAttribute", "Usability"),
 )
 
+CANONICAL_TARGETS = {
+    "button": ("UIElement", "Button"),
+    "botao": ("UIElement", "Button"),
+    "screen": ("UIElement", "Screen"),
+    "tela": ("UIElement", "Screen"),
+    "report": ("Feature", "Report"),
+    "relatorio": ("Feature", "Report"),
+    "certificate": ("Feature", "CertificateManagement"),
+    "certificado": ("Feature", "CertificateManagement"),
+    "certificados": ("Feature", "CertificateManagement"),
+}
+
 
 def normalize_text(value: str) -> str:
     value = unicodedata.normalize("NFKC", value or "")
@@ -53,6 +65,7 @@ def resolve_targets(technical_target, target_candidate, feedback_text, domain_le
     seen: set[tuple[str, str]] = set()
 
     def add(target_type, target_name, expression, source, confidence=None):
+        target_type, target_name = canonical_target(target_type, target_name, expression)
         key = (normalize_text(target_type), normalize_text(target_name))
         if key not in seen:
             seen.add(key)
@@ -92,10 +105,17 @@ def resolve_targets(technical_target, target_candidate, feedback_text, domain_le
 def derive_consequences(ai_intent, mapped_intention, sentiment_score, feedback_text, resolved_targets, target_frequencies, hotspot_min_count=3, priority_keywords=()) -> list[DerivedConsequence]:
     text = normalize_text(feedback_text)
     intent = normalize_text(f"{ai_intent} {mapped_intention}")
-    problem = _has_any(text, ("erro", "falha", "defeito", "trav", "nao funciona", "impossivel", "quebrado", "incorreto"))
+    bug_report = "intention_bugreport" in intent or "bugreport" in intent
+    problem = _has_any(text, (
+        "erro", "falha", "defeito", "trav", "nao funciona", "nao foi possivel", "nao esta salvando",
+        "nao foi vinculado", "nao foi vinculada", "nao constam todos", "so foi possivel",
+        "nao foram gerados", "nao aparece", "impossivel", "quebrado", "incorreto",
+    ))
     suggestion = _has_any(text, ("sugiro", "deveria", "gostaria", "poderia", "incluir", "adicionar", "melhorar", "nova funcionalidade", "prefer"))
     results = []
-    if ("report" in intent and problem) or (problem and sentiment_score is not None and sentiment_score <= -.5) or problem:
+    if bug_report:
+        results.append(DerivedConsequence("Correction", "bug_report_intention", .95))
+    elif ("report" in intent and problem) or (problem and sentiment_score is not None and sentiment_score <= -.5) or problem:
         results.append(DerivedConsequence("Correction", "technical_problem", .9))
     if "suggest" in intent or suggestion:
         results.append(DerivedConsequence("Improvement", "suggestion_or_evolution", .85))
@@ -112,6 +132,19 @@ def derive_consequences(ai_intent, mapped_intention, sentiment_score, feedback_t
 def _parse_target(value):
     parts = re.split(r"[._:]", value, maxsplit=1)
     return (parts[0] or "Feature", parts[1] if len(parts) > 1 and parts[1] else _canonical(value))
+
+
+def canonical_target(target_type: str, target_name: str, expression: str = "") -> tuple[str, str]:
+    allowed = {"Feature", "UIElement", "Requirement", "Process", "DataItem", "QualityAttribute", "Target"}
+    candidates = (normalize_text(target_name), normalize_text(expression))
+    for candidate in candidates:
+        if candidate in CANONICAL_TARGETS:
+            return CANONICAL_TARGETS[candidate]
+        for token, canonical in CANONICAL_TARGETS.items():
+            if re.search(rf"(?<!\w){re.escape(token)}s?(?!\w)", candidate):
+                return canonical
+    normalized_type = next((item for item in allowed if normalize_text(item) == normalize_text(target_type)), "Target")
+    return normalized_type, target_name or "General"
 
 
 def _canonical(value):
